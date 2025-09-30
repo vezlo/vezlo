@@ -417,6 +417,8 @@
             // Move to setup step
             nextStep();
 
+            console.log('Sending config:', config);
+
             try {
                 // Call setup API endpoint
                 const response = await fetch('/api/setup/configure', {
@@ -437,7 +439,9 @@
                     // Show error
                     document.getElementById('setup-progress').style.display = 'none';
                     document.getElementById('setup-error').style.display = 'block';
-                    document.getElementById('error-message').textContent = result.error || 'Unknown error occurred';
+                    const errorMsg = result.error || 'Unknown error occurred';
+                    const debugInfo = result.received ? '\n\nDebug: ' + JSON.stringify(result.received, null, 2) : '';
+                    document.getElementById('error-message').textContent = errorMsg + debugInfo;
                 }
             } catch (error) {
                 document.getElementById('setup-progress').style.display = 'none';
