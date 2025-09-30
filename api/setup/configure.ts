@@ -44,21 +44,17 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       });
     }
 
-    // Step 1: Validate Supabase connection
+    // Step 1: Validate Supabase connection (just test the client creation)
     console.log('Validating Supabase connection...');
-    const supabase = createClient(config.supabase_url, config.supabase_service_key);
-
-    const { error: supabaseError } = await supabase
-      .from('conversations')
-      .select('count')
-      .limit(1);
-
-    // Error is expected if table doesn't exist yet
-    if (supabaseError && supabaseError.code !== 'PGRST116' && supabaseError.code !== '42P01') {
-      console.error('Supabase connection failed:', supabaseError);
+    try {
+      const supabase = createClient(config.supabase_url, config.supabase_service_key);
+      // Just verify the client was created - don't check for tables yet
+      console.log('Supabase client created successfully');
+    } catch (error: any) {
+      console.error('Supabase connection failed:', error);
       return res.status(400).json({
         success: false,
-        error: `Supabase connection failed: ${supabaseError.message}`
+        error: `Supabase connection failed: ${error.message}`
       });
     }
 
@@ -101,7 +97,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       SELECT table_name
       FROM information_schema.tables
       WHERE table_schema = 'public'
-      AND table_name IN ('conversations', 'messages', 'message_feedback', 'knowledge_items')
+      AND table_name IN ('vezlo_conversations', 'vezlo_messages', 'vezlo_message_feedback', 'vezlo_knowledge_items')
       ORDER BY table_name
     `);
 

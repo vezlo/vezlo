@@ -1,7 +1,6 @@
 -- Vezlo AI Assistant - Modern Database Schema
 -- Finalized schema with conversation-based chat and unified knowledge base
 -- Run this in your Supabase SQL Editor
--- All tables prefixed with 'vezlo_' to avoid conflicts with existing user tables
 
 -- Enable required extensions
 CREATE EXTENSION IF NOT EXISTS vector;
@@ -58,7 +57,7 @@ CREATE TABLE IF NOT EXISTS vezlo_message_feedback (
 CREATE TABLE IF NOT EXISTS vezlo_knowledge_items (
   id BIGSERIAL PRIMARY KEY,
   uuid UUID DEFAULT gen_random_uuid() UNIQUE NOT NULL,
-  parent_id BIGINT REFERENCES vezlo_knowledge_items(id), -- Hierarchical structure
+  parent_id BIGINT REFERENCES knowledge_items(id), -- Hierarchical structure
   company_id BIGINT,                        -- Multi-tenancy support
   title TEXT NOT NULL,
   description TEXT,
@@ -81,75 +80,75 @@ CREATE TABLE IF NOT EXISTS vezlo_knowledge_items (
 
 -- Conversations indexes
 CREATE INDEX IF NOT EXISTS idx_vezlo_conversations_uuid ON vezlo_conversations(uuid);
-CREATE INDEX IF NOT EXISTS idx_vezlo_conversations_company_id ON vezlo_conversations(company_id);
-CREATE INDEX IF NOT EXISTS idx_vezlo_conversations_creator_id ON vezlo_conversations(creator_id);
-CREATE INDEX IF NOT EXISTS idx_vezlo_conversations_deleted ON vezlo_conversations(deleted_at) WHERE deleted_at IS NULL;
-CREATE INDEX IF NOT EXISTS idx_vezlo_conversations_updated_at ON vezlo_conversations(updated_at DESC);
+CREATE INDEX IF NOT EXISTS idx_vezlo_conversations_uuid ON vezlo_conversations(company_id);
+CREATE INDEX IF NOT EXISTS idx_vezlo_conversations_uuid ON vezlo_conversations(creator_id);
+CREATE INDEX IF NOT EXISTS idx_vezlo_conversations_uuid ON vezlo_conversations(deleted_at) WHERE deleted_at IS NULL;
+CREATE INDEX IF NOT EXISTS idx_vezlo_conversations_uuid ON vezlo_conversations(updated_at DESC);
 
 -- Messages indexes
-CREATE INDEX IF NOT EXISTS idx_vezlo_messages_uuid ON vezlo_messages(uuid);
-CREATE INDEX IF NOT EXISTS idx_vezlo_messages_conversation_id ON vezlo_messages(conversation_id);
-CREATE INDEX IF NOT EXISTS idx_vezlo_messages_parent_id ON vezlo_messages(parent_message_id);
-CREATE INDEX IF NOT EXISTS idx_vezlo_messages_type ON vezlo_messages(type);
-CREATE INDEX IF NOT EXISTS idx_vezlo_messages_status ON vezlo_messages(status);
-CREATE INDEX IF NOT EXISTS idx_vezlo_messages_created_at ON vezlo_messages(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_vezlo_messages_conversation ON vezlo_messages(uuid);
+CREATE INDEX IF NOT EXISTS idx_vezlo_messages_conversation ON vezlo_messages(conversation_id);
+CREATE INDEX IF NOT EXISTS idx_vezlo_messages_conversation ON vezlo_messages(parent_message_id);
+CREATE INDEX IF NOT EXISTS idx_vezlo_messages_conversation ON vezlo_messages(type);
+CREATE INDEX IF NOT EXISTS idx_vezlo_messages_conversation ON vezlo_messages(status);
+CREATE INDEX IF NOT EXISTS idx_vezlo_messages_conversation ON vezlo_messages(created_at DESC);
 
 -- Message feedback indexes
-CREATE INDEX IF NOT EXISTS idx_vezlo_feedback_uuid ON vezlo_message_feedback(uuid);
-CREATE INDEX IF NOT EXISTS idx_vezlo_feedback_message_id ON vezlo_message_feedback(message_id);
-CREATE INDEX IF NOT EXISTS idx_vezlo_feedback_user_id ON vezlo_message_feedback(user_id);
-CREATE INDEX IF NOT EXISTS idx_vezlo_feedback_rating ON vezlo_message_feedback(rating);
+CREATE INDEX IF NOT EXISTS idx_feedback_uuid ON message_feedback(uuid);
+CREATE INDEX IF NOT EXISTS idx_feedback_message_id ON message_feedback(message_id);
+CREATE INDEX IF NOT EXISTS idx_feedback_user_id ON message_feedback(user_id);
+CREATE INDEX IF NOT EXISTS idx_feedback_rating ON message_feedback(rating);
 
 -- Knowledge items indexes
-CREATE INDEX IF NOT EXISTS idx_vezlo_knowledge_uuid ON vezlo_knowledge_items(uuid);
-CREATE INDEX IF NOT EXISTS idx_vezlo_knowledge_company_id ON vezlo_knowledge_items(company_id);
-CREATE INDEX IF NOT EXISTS idx_vezlo_knowledge_parent_id ON vezlo_knowledge_items(parent_id);
-CREATE INDEX IF NOT EXISTS idx_vezlo_knowledge_type ON vezlo_knowledge_items(type);
-CREATE INDEX IF NOT EXISTS idx_vezlo_knowledge_created_by ON vezlo_knowledge_items(created_by);
-CREATE INDEX IF NOT EXISTS idx_vezlo_knowledge_created_at ON vezlo_knowledge_items(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_vezlo_knowledge_items_embedding ON vezlo_knowledge_items(uuid);
+CREATE INDEX IF NOT EXISTS idx_vezlo_knowledge_items_embedding ON vezlo_knowledge_items(company_id);
+CREATE INDEX IF NOT EXISTS idx_vezlo_knowledge_items_embedding ON vezlo_knowledge_items(parent_id);
+CREATE INDEX IF NOT EXISTS idx_vezlo_knowledge_items_embedding ON vezlo_knowledge_items(type);
+CREATE INDEX IF NOT EXISTS idx_vezlo_knowledge_items_embedding ON vezlo_knowledge_items(created_by);
+CREATE INDEX IF NOT EXISTS idx_vezlo_knowledge_items_embedding ON vezlo_knowledge_items(created_at DESC);
 
 -- Full-text search index for knowledge items
-CREATE INDEX IF NOT EXISTS idx_vezlo_knowledge_search
-ON vezlo_knowledge_items USING gin(to_tsvector('english', title || ' ' || COALESCE(description, '') || ' ' || COALESCE(content, '')));
+CREATE INDEX IF NOT EXISTS idx_knowledge_search 
+ON knowledge_items USING gin(to_tsvector('english', title || ' ' || COALESCE(description, '') || ' ' || COALESCE(content, '')));
 
 -- Vector similarity index for semantic search (only for items with content)
-CREATE INDEX IF NOT EXISTS idx_vezlo_knowledge_embedding
-ON vezlo_knowledge_items USING ivfflat (embedding vector_cosine_ops)
+CREATE INDEX IF NOT EXISTS idx_knowledge_embedding 
+ON knowledge_items USING ivfflat (embedding vector_cosine_ops)
 WHERE embedding IS NOT NULL;
 
 -- Sparse indexes for better performance
-CREATE INDEX IF NOT EXISTS idx_vezlo_knowledge_content
-ON vezlo_knowledge_items(content) WHERE content IS NOT NULL;
+CREATE INDEX IF NOT EXISTS idx_knowledge_content 
+ON knowledge_items(content) WHERE content IS NOT NULL;
 
-CREATE INDEX IF NOT EXISTS idx_vezlo_knowledge_file_url
-ON vezlo_knowledge_items(file_url) WHERE file_url IS NOT NULL;
+CREATE INDEX IF NOT EXISTS idx_knowledge_file_url 
+ON knowledge_items(file_url) WHERE file_url IS NOT NULL;
 
 -- ============================================================================
 -- ROW LEVEL SECURITY (Optional but Recommended)
 -- ============================================================================
 
 -- Enable RLS on all tables
-ALTER TABLE vezlo_conversations ENABLE ROW LEVEL SECURITY;
-ALTER TABLE vezlo_messages ENABLE ROW LEVEL SECURITY;
-ALTER TABLE vezlo_message_feedback ENABLE ROW LEVEL SECURITY;
-ALTER TABLE vezlo_knowledge_items ENABLE ROW LEVEL SECURITY;
+ALTER TABLE conversations ENABLE ROW LEVEL SECURITY;
+ALTER TABLE messages ENABLE ROW LEVEL SECURITY;
+ALTER TABLE message_feedback ENABLE ROW LEVEL SECURITY;
+ALTER TABLE knowledge_items ENABLE ROW LEVEL SECURITY;
 
 -- Policies for service role access (full access)
-CREATE POLICY "Service role can access all conversations" ON vezlo_conversations
+CREATE POLICY "Service role can access all conversations" ON conversations
   FOR ALL USING (auth.role() = 'service_role');
 
-CREATE POLICY "Service role can access all messages" ON vezlo_messages
+CREATE POLICY "Service role can access all messages" ON messages
   FOR ALL USING (auth.role() = 'service_role');
 
-CREATE POLICY "Service role can access all feedback" ON vezlo_message_feedback
+CREATE POLICY "Service role can access all feedback" ON message_feedback
   FOR ALL USING (auth.role() = 'service_role');
 
-CREATE POLICY "Service role can access all knowledge items" ON vezlo_knowledge_items
+CREATE POLICY "Service role can access all knowledge items" ON knowledge_items
   FOR ALL USING (auth.role() = 'service_role');
 
 -- Example company-based policies (uncomment and modify as needed)
--- CREATE POLICY "Users can access their company conversations" ON vezlo_conversations
+-- CREATE POLICY "Users can access their company conversations" ON conversations
 --   FOR ALL USING (company_id = auth.jwt() ->> 'company_id');
 
--- CREATE POLICY "Users can access their company knowledge" ON vezlo_knowledge_items
+-- CREATE POLICY "Users can access their company knowledge" ON knowledge_items
 --   FOR ALL USING (company_id = auth.jwt() ->> 'company_id');
