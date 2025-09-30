@@ -144,11 +144,14 @@ app.post('/api/setup/configure', async (req, res) => {
   return setupHandler.default(req as any, res as any);
 });
 
+// Helper to check if environment is configured
+function isEnvironmentConfigured(): boolean {
+  return !!(process.env.SUPABASE_URL && process.env.OPENAI_API_KEY);
+}
+
 // Redirect root to setup if not configured, otherwise to docs
 app.get('/', (req, res) => {
-  // Check if environment variables are configured
-  const isConfigured = process.env.SUPABASE_URL && process.env.OPENAI_API_KEY;
-  if (!isConfigured) {
+  if (!isEnvironmentConfigured()) {
     res.redirect('/setup');
   } else {
     res.redirect('/docs');
@@ -164,16 +167,21 @@ app.get('/health', async (req, res) => {
     const healthChecks: any = {
       server: 'healthy',
       timestamp: new Date().toISOString(),
-      platform: 'vercel'
+      platform: 'vercel',
+      configured: isEnvironmentConfigured()
     };
 
-    // Check Supabase connection
-    try {
-      const supabase = getSupabaseClient();
-      const { error } = await supabase.from('conversations').select('count').limit(1);
-      healthChecks.supabase = error ? 'error' : 'connected';
-    } catch (error) {
-      healthChecks.supabase = 'disconnected';
+    // Only check Supabase if configured
+    if (isEnvironmentConfigured()) {
+      try {
+        const supabase = getSupabaseClient();
+        const { error } = await supabase.from('conversations').select('count').limit(1);
+        healthChecks.supabase = error ? 'error' : 'connected';
+      } catch (error) {
+        healthChecks.supabase = 'disconnected';
+      }
+    } else {
+      healthChecks.supabase = 'not_configured';
     }
 
     res.json({
@@ -188,26 +196,55 @@ app.get('/health', async (req, res) => {
   }
 });
 
+// Middleware to ensure services are initialized for API routes
+const requireServices = async (req: any, res: any, next: any) => {
+  if (!isEnvironmentConfigured()) {
+    return res.status(503).json({
+      success: false,
+      error: {
+        code: 'NOT_CONFIGURED',
+        message: 'Server not configured. Please visit /setup to configure.',
+        timestamp: new Date().toISOString()
+      }
+    });
+  }
+
+  try {
+    await initializeServices();
+    next();
+  } catch (error) {
+    logger.error('Failed to initialize services:', error);
+    return res.status(500).json({
+      success: false,
+      error: {
+        code: 'INITIALIZATION_FAILED',
+        message: 'Failed to initialize server services',
+        timestamp: new Date().toISOString()
+      }
+    });
+  }
+};
+
 // Conversation APIs
-app.post('/api/conversations', (req, res) => chatController.createConversation(req, res));
-app.get('/api/conversations/:uuid', (req, res) => chatController.getConversation(req, res));
-app.delete('/api/conversations/:uuid', (req, res) => chatController.deleteConversation(req, res));
-app.get('/api/users/:uuid/conversations', (req, res) => chatController.getUserConversations(req, res));
+app.post('/api/conversations', requireServices, (req, res) => chatController.createConversation(req, res));
+app.get('/api/conversations/:uuid', requireServices, (req, res) => chatController.getConversation(req, res));
+app.delete('/api/conversations/:uuid', requireServices, (req, res) => chatController.deleteConversation(req, res));
+app.get('/api/users/:uuid/conversations', requireServices, (req, res) => chatController.getUserConversations(req, res));
 
 // Message APIs
-app.post('/api/conversations/:uuid/messages', (req, res) => chatController.createMessage(req, res));
-app.post('/api/messages/:uuid/generate', (req, res) => chatController.generateResponse(req, res));
+app.post('/api/conversations/:uuid/messages', requireServices, (req, res) => chatController.createMessage(req, res));
+app.post('/api/messages/:uuid/generate', requireServices, (req, res) => chatController.generateResponse(req, res));
 
 // Knowledge Base APIs
-app.post('/api/knowledge/items', (req, res) => knowledgeController.createItem(req, res));
-app.get('/api/knowledge/items', (req, res) => knowledgeController.listItems(req, res));
-app.get('/api/knowledge/items/:uuid', (req, res) => knowledgeController.getItem(req, res));
-app.put('/api/knowledge/items/:uuid', (req, res) => knowledgeController.updateItem(req, res));
-app.delete('/api/knowledge/items/:uuid', (req, res) => knowledgeController.deleteItem(req, res));
-app.post('/api/knowledge/search', (req, res) => knowledgeController.searchKnowledge(req, res));
+app.post('/api/knowledge/items', requireServices, (req, res) => knowledgeController.createItem(req, res));
+app.get('/api/knowledge/items', requireServices, (req, res) => knowledgeController.listItems(req, res));
+app.get('/api/knowledge/items/:uuid', requireServices, (req, res) => knowledgeController.getItem(req, res));
+app.put('/api/knowledge/items/:uuid', requireServices, (req, res) => knowledgeController.updateItem(req, res));
+app.delete('/api/knowledge/items/:uuid', requireServices, (req, res) => knowledgeController.deleteItem(req, res));
+app.post('/api/knowledge/search', requireServices, (req, res) => knowledgeController.searchKnowledge(req, res));
 
 // Feedback API
-app.post('/api/feedback', (req, res) => chatController.submitFeedback(req, res));
+app.post('/api/feedback', requireServices, (req, res) => chatController.submitFeedback(req, res));
 
 // Error handlers
 app.use(notFoundHandler);
@@ -215,9 +252,7 @@ app.use(errorHandler);
 
 // Vercel serverless function export
 export default async (req: VercelRequest, res: VercelResponse) => {
-  // Initialize services on first request (cold start)
-  await initializeServices();
-
-  // Handle the request with Express
+  // Don't initialize services here - let routes handle it conditionally
+  // This allows /setup and /health to work without configuration
   return app(req as any, res as any);
 };
