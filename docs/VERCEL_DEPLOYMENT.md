@@ -4,7 +4,24 @@ Deploy your Vezlo Assistant Server to Vercel in minutes with this comprehensive 
 
 ## 🚀 Quick Deploy
 
-### Option 1: One-Click Deploy (Recommended)
+### Option 1: One-Click Deploy + Web Setup (Easiest!)
+
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/vezlo/assistant-server&project-name=vezlo-assistant&repository-name=vezlo-assistant-server)
+
+**New!** After deployment:
+1. Visit your deployed URL (e.g., `https://your-app.vercel.app`)
+2. You'll be automatically redirected to the **Web Setup Wizard**
+3. Follow the interactive wizard to:
+   - Configure your Supabase database
+   - Add your OpenAI API key
+   - Automatically create database tables
+   - Validate the entire setup
+
+**No CLI required! Everything is done through a beautiful web interface.**
+
+### Option 2: One-Click Deploy (Advanced - Manual Env Setup)
+
+Use this if you prefer to configure environment variables manually in Vercel dashboard:
 
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/vezlo/assistant-server&env=SUPABASE_URL,SUPABASE_SERVICE_KEY,SUPABASE_DB_HOST,SUPABASE_DB_PASSWORD,OPENAI_API_KEY&envDescription=Required%20environment%20variables%20for%20Vezlo%20Assistant%20Server&envLink=https://github.com/vezlo/assistant-server/blob/main/.env.vercel.example&project-name=vezlo-assistant&repository-name=vezlo-assistant-server)
 
@@ -14,7 +31,30 @@ This will:
 3. Prompt you for required environment variables
 4. Deploy automatically
 
-### Option 2: Manual Vercel CLI Deploy
+## 🌐 Web-Based Setup Wizard
+
+After deploying to Vercel, visit your app URL and you'll see the interactive setup wizard:
+
+**Features:**
+- ✨ **Beautiful UI** - Step-by-step guided configuration
+- 🔒 **Secure** - Credentials never leave your browser until submitted
+- ✅ **Validation** - Tests database connections before proceeding
+- 🚀 **Auto-Migration** - Automatically creates all database tables
+- 📊 **Verification** - Confirms successful setup with detailed status
+
+**Steps:**
+1. **Welcome** - Introduction to the setup process
+2. **Database** - Enter Supabase credentials
+3. **OpenAI** - Configure AI model and API key
+4. **Setup** - Automatic table creation and validation
+5. **Complete** - Success confirmation with next steps
+
+**Access the wizard:**
+- First visit: Automatically redirected to `/setup`
+- Manual access: Visit `https://your-app.vercel.app/setup`
+- After setup: Redirected to `/docs` (API documentation)
+
+### Option 3: Manual Vercel CLI Deploy
 
 ```bash
 # Install Vercel CLI

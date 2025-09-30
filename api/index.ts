@@ -129,9 +129,30 @@ async function initializeServices() {
 
 // Routes
 
-// Redirect root to docs
+// Serve static files from public directory
+app.use('/public', express.static('public'));
+
+// Setup wizard route
+app.get('/setup', (req, res) => {
+  res.sendFile('setup.html', { root: 'public' });
+});
+
+// Setup API endpoint
+app.post('/api/setup/configure', async (req, res) => {
+  // Import setup handler dynamically
+  const setupHandler = await import('./setup');
+  return setupHandler.default(req as any, res as any);
+});
+
+// Redirect root to setup if not configured, otherwise to docs
 app.get('/', (req, res) => {
-  res.redirect('/docs');
+  // Check if environment variables are configured
+  const isConfigured = process.env.SUPABASE_URL && process.env.OPENAI_API_KEY;
+  if (!isConfigured) {
+    res.redirect('/setup');
+  } else {
+    res.redirect('/docs');
+  }
 });
 
 // API Documentation
