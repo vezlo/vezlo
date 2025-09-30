@@ -13,6 +13,7 @@ import { join } from 'path';
 interface SetupConfig {
   supabase_url: string;
   supabase_service_key: string;
+  db_host?: string;  // Optional - will try to extract from URL if not provided
   db_password: string;
   openai_api_key: string;
   ai_model?: string;
@@ -58,17 +59,22 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       });
     }
 
-    // Step 2: Extract database host from Supabase URL
-    const projectIdMatch = config.supabase_url.match(/https:\/\/(.+?)\.supabase\.co/);
-    if (!projectIdMatch) {
+    // Step 2: Determine database host
+    let dbHost: string;
+
+    if (config.db_host) {
+      // User provided database host directly
+      dbHost = config.db_host;
+    } else {
+      // Try to extract from Supabase URL
+      // Modern Supabase uses pooler format: aws-0-[region].pooler.supabase.com
+      // But we need the direct connection, which is in the Database Settings
       return res.status(400).json({
         success: false,
-        error: 'Invalid Supabase URL format'
+        error: 'Database host is required. Please find it in Supabase Dashboard > Settings > Database > Connection String (Direct connection)',
+        hint: 'Look for "Host" in the connection info - it should look like: aws-0-us-east-1.pooler.supabase.com or db.xxxxx.supabase.co'
       });
     }
-
-    const projectId = projectIdMatch[1];
-    const dbHost = `db.${projectId}.supabase.co`;
 
     // Step 3: Connect to database directly
     console.log('Connecting to PostgreSQL database...');
