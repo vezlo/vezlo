@@ -259,7 +259,16 @@ app.use(errorHandler);
 
 // Vercel serverless function export
 export default async (req: VercelRequest, res: VercelResponse) => {
-  // Don't initialize services here - let routes handle it conditionally
-  // This allows /setup and /health to work without configuration
-  return app(req as any, res as any);
+  try {
+    // Don't initialize services here - let routes handle it conditionally
+    // This allows /setup and /health to work without configuration
+    return app(req as any, res as any);
+  } catch (error) {
+    logger.error('Function invocation error:', error);
+    return res.status(500).json({
+      error: 'Internal server error',
+      message: error instanceof Error ? error.message : 'Unknown error',
+      stack: process.env.NODE_ENV === 'development' ? (error instanceof Error ? error.stack : undefined) : undefined
+    });
+  }
 };
