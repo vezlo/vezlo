@@ -5,7 +5,15 @@
   "main": "dist/server.js",
   "scripts": {
     "build": "tsc",
-    "start": "node dist/server.js"
+    "start": "node dist/server.js",
+    "migrate:make": "knex migrate:make",
+    "migrate:latest": "knex migrate:latest",
+    "migrate:rollback": "knex migrate:rollback",
+    "migrate:status": "knex migrate:status",
+    "migrate:up": "knex migrate:up",
+    "migrate:down": "knex migrate:down",
+    "seed:make": "knex seed:make",
+    "seed:run": "knex seed:run"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.38.0",
@@ -20,7 +28,9 @@
     "openai": "^4.20.1",
     "uuid": "^9.0.1",
     "swagger-jsdoc": "^6.2.8",
-    "swagger-ui-express": "^5.0.0"
+    "swagger-ui-express": "^5.0.0",
+    "knex": "^3.1.0",
+    "pg": "^8.11.3"
   },
   "devDependencies": {
     "@types/node": "^20.10.0",
@@ -30,6 +40,7 @@
     "@types/uuid": "^9.0.6",
     "@types/swagger-jsdoc": "^6.0.4",
     "@types/swagger-ui-express": "^4.1.6",
+    "@types/pg": "^8.10.9",
     "typescript": "^5.2.2"
   },
   "engines": {

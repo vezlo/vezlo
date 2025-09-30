@@ -10,8 +10,9 @@ COPY tsconfig.json ./
 # Install all dependencies (including dev for building)
 RUN npm ci && npm cache clean --force
 
-# Copy source code
+# Copy source code and scripts
 COPY src ./src
+COPY scripts ./scripts
 
 # Build the application
 RUN npm run build
@@ -31,11 +32,18 @@ RUN adduser -S vezlo -u 1001
 # Copy package files
 COPY package*.json ./
 
-# Install only production dependencies
-RUN npm ci --only=production && npm cache clean --force
+# Install only production dependencies + ts-node for migrations
+RUN npm ci --only=production && npm install ts-node && npm cache clean --force
 
-# Copy built application
+# Copy built application, migrations, and scripts from builder
 COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/src/migrations ./src/migrations
+COPY --from=builder /app/src/knexfile.ts ./knexfile.ts
+COPY --from=builder /app/scripts ./scripts
+
+# Make entrypoint script executable and set ownership
+RUN chmod +x ./scripts/entrypoint.sh && \
+    chown -R vezlo:nodejs ./scripts
 
 # Create logs directory
 RUN mkdir -p logs && chown -R vezlo:nodejs logs
@@ -50,6 +58,6 @@ EXPOSE 3000
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
   CMD node -e "require('http').get('http://localhost:3000/health', (res) => { process.exit(res.statusCode === 200 ? 0 : 1) })"
 
-# Start the application
+# Start the application with migration runner
 ENTRYPOINT ["dumb-init", "--"]
-CMD ["node", "dist/server.js"]
+CMD ["./scripts/entrypoint.sh", "node", "dist/server.js"]
