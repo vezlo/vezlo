@@ -13,6 +13,8 @@ import compression from 'compression';
 import rateLimit from 'express-rate-limit';
 import { Server } from 'socket.io';
 import { config } from 'dotenv';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
 // Import configurations
 import logger from '../src/config/logger';
@@ -33,6 +35,10 @@ import { KnowledgeController } from '../src/controllers/KnowledgeController';
 
 // Load environment variables
 config();
+
+// Get the directory path in a way that works with both CommonJS and ES modules
+const __dirname = path.resolve();
+const publicPath = path.join(__dirname, 'public');
 
 // Initialize Express app (shared across invocations)
 const app = express();
@@ -130,11 +136,12 @@ async function initializeServices() {
 // Routes
 
 // Serve static files from public directory
-app.use('/public', express.static('public'));
+app.use('/public', express.static(publicPath));
 
 // Setup wizard route
 app.get('/setup', (req, res) => {
-  res.sendFile('setup.html', { root: 'public' });
+  const setupHtmlPath = path.join(publicPath, 'setup.html');
+  res.sendFile(setupHtmlPath);
 });
 
 // Setup API endpoint
