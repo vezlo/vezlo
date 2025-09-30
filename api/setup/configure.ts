@@ -36,11 +36,24 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   try {
     const config: SetupConfig = req.body;
 
+    console.log('Received config:', {
+      has_supabase_url: !!config.supabase_url,
+      has_supabase_service_key: !!config.supabase_service_key,
+      has_db_connection_string: !!config.db_connection_string,
+      has_openai_api_key: !!config.openai_api_key
+    });
+
     // Validate required fields
     if (!config.supabase_url || !config.supabase_service_key || !config.db_connection_string || !config.openai_api_key) {
       return res.status(400).json({
         success: false,
-        error: 'Missing required fields'
+        error: 'Missing required fields',
+        received: {
+          supabase_url: !!config.supabase_url,
+          supabase_service_key: !!config.supabase_service_key,
+          db_connection_string: !!config.db_connection_string,
+          openai_api_key: !!config.openai_api_key
+        }
       });
     }
 
