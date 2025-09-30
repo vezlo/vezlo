@@ -1,9 +1,6 @@
 # Dependencies
 node_modules/
 
-# Source files (we need compiled dist/)
-src/
-
 # Development files
 .env
 .env.*
@@ -52,11 +49,7 @@ Dockerfile
 docker-compose.yml
 .dockerignore
 
-# Database
-database-schema.sql
-
-# Migrations (handled separately)
-knexfile.ts
+# Note: database-schema.sql and knexfile.ts are needed for setup wizard
 
 # Package manager
 package-lock.json
