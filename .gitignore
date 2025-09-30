@@ -339,3 +339,4 @@ docs/generated/
 # Claude Code configuration (local development only)
 CLAUDE.md
 .claude/
+.vercel
