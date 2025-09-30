@@ -476,39 +476,68 @@ export class KnowledgeBaseService {
   }
 
   private async generateEmbedding(text: string): Promise<number[] | null> {
-    try {
-      console.log('Generating embedding with OpenAI API...');
-      
-      if (!process.env.OPENAI_API_KEY) {
-        console.error('OPENAI_API_KEY environment variable is not set');
+    const maxRetries = 3;
+    const retryDelay = 1000; // 1 second
+
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+      try {
+        console.log(`Generating embedding with OpenAI API... (attempt ${attempt}/${maxRetries})`);
+        
+        if (!process.env.OPENAI_API_KEY) {
+          console.error('OPENAI_API_KEY environment variable is not set');
+          return null;
+        }
+
+        // Use OpenAI API with timeout
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
+
+        const response = await fetch('https://api.openai.com/v1/embeddings', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            model: 'text-embedding-ada-002',
+            input: text.substring(0, 8000) // Limit text length to avoid token limits
+          }),
+          signal: controller.signal
+        });
+
+        clearTimeout(timeoutId);
+
+        if (!response.ok) {
+          const errorText = await response.text();
+          console.error(`OpenAI API error: ${response.status} - ${errorText}`);
+          throw new Error(`OpenAI API error: ${response.status} - ${errorText}`);
+        }
+
+        const data = await response.json() as { data: Array<{ embedding: number[] }> };
+        console.log('OpenAI API response received, embedding length:', data.data[0].embedding.length);
+        return data.data[0].embedding;
+
+      } catch (error) {
+        console.error(`Embedding generation failed (attempt ${attempt}/${maxRetries}):`, error);
+        
+        // If it's a network/DNS error and we have retries left, wait and retry
+        if (attempt < maxRetries && (
+          error instanceof Error && (
+            error.message.includes('EAI_AGAIN') ||
+            error.message.includes('fetch failed') ||
+            error.message.includes('getaddrinfo')
+          )
+        )) {
+          console.log(`Retrying in ${retryDelay}ms...`);
+          await new Promise(resolve => setTimeout(resolve, retryDelay));
+          continue;
+        }
+        
+        // If it's the last attempt or not a network error, return null
         return null;
       }
-
-      // Use OpenAI API (same as original implementation)
-      const response = await fetch('https://api.openai.com/v1/embeddings', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          model: 'text-embedding-ada-002',
-          input: text.substring(0, 8000) // Limit text length to avoid token limits
-        })
-      });
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error(`OpenAI API error: ${response.status} - ${errorText}`);
-        throw new Error(`OpenAI API error: ${response.status} - ${errorText}`);
-      }
-
-      const data = await response.json() as { data: Array<{ embedding: number[] }> };
-      console.log('OpenAI API response received, embedding length:', data.data[0].embedding.length);
-      return data.data[0].embedding;
-    } catch (error) {
-      console.error('Embedding generation failed:', error);
-      return null;
     }
+    
+    return null;
   }
 }

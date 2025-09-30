@@ -1,174 +1,322 @@
-# Vezlo AI Assistant SDK
+# Vezlo AI Assistant Server
 
-🚀 **AI Assistant SDK for SaaS Businesses** - Backend APIs, source-to-knowledge library, and embeddable widgets for building intelligent AI assistants.
+🚀 **Production-ready Node.js/TypeScript API server** for the Vezlo AI Assistant platform - Complete backend APIs with Docker deployment and database migrations.
 
-## 🏗️ SDK Components
+## 🏗️ Architecture
 
-Vezlo provides three core components for SaaS businesses:
-
-| Component | Status | Description | Documentation |
-|-----------|--------|-------------|---------------|
-| **🖥️ Server** | ✅ **Production Ready** | Backend APIs for AI chat and knowledge management | [Complete Setup Guide](./server/README.md) |
-| **📦 Packages** | 🚧 **Coming Soon** | **Source-to-knowledge library** integration with server | [Development Status](./packages/README.md) |
-| **🌐 Web** | 🚧 **Coming Soon** | **Embeddable widget SDK** configuration and deployment | [Planned Features](./web/README.md) |
+- **Backend APIs** - RESTful API endpoints for AI chat and knowledge management
+- **Real-time Communication** - WebSocket support for live chat
+- **Vector Search** - Supabase-powered semantic search with embeddings
+- **Conversation Management** - Persistent conversation history
+- **Feedback System** - Message rating and improvement tracking
+- **Database Migrations** - Knex.js migration system for schema management
+- **Production Ready** - Docker containerization with health checks
 
 ## 🚀 Quick Start
-
-### Option 1: Backend APIs (Available Now)
-Deploy the complete backend API server:
-
-```bash
-# Clone repository
-git clone https://github.com/vezlo/vezlo.git
-cd vezlo
-
-# Start server with Docker
-docker-compose up -d
-
-# Access API documentation
-open http://localhost:3000/docs
-```
-
-**What you get:**
-- ✅ RESTful API endpoints for AI chat
-- ✅ Knowledge base management with vector search
-- ✅ Real-time WebSocket communication
-- ✅ Conversation management and feedback system
-- ✅ Production-ready Docker deployment
-
-### Option 2: Source-to-Knowledge Library (Available Now)
-Convert your codebase into a searchable knowledge base:
-
-```bash
-# Install the library from separate repository
-npm install @vezlo/src-to-kb
-
-# Generate knowledge base from your project
-src-to-kb /path/to/your/project --output ./project-kb
-
-# Search your codebase
-src-to-kb-search search "authentication" --kb ./project-kb
-```
-
-**What you get:**
-- ✅ **Multi-language support** - JavaScript, TypeScript, Python, Java, C/C++, Go, Rust, Ruby, PHP, Swift, Kotlin, Scala
-- ✅ **Local knowledge base** - Create searchable documentation from your codebase
-- ✅ **CLI tools** - Command-line interface for analysis and search
-- 🚧 **Server integration** - Work in progress to push analyzed code to backend APIs
-
-### Option 3: Embeddable Widget SDK (Coming Soon)
-Configure and deploy AI chat widgets with SDK:
-
-```html
-<!-- Generated embeddable SDK code (Planned) -->
-<script src="https://widget.vezlo.ai/chat.js" data-config="your-widget"></script>
-```
-
-**What you'll get:**
-- 🚧 **Visual widget configuration** dashboard
-- 🚧 **Customizable appearance** and behavior
-- 🚧 **Analytics and performance** tracking
-- 🚧 **SDK-based deployment** for easy integration
-
-## 🎯 Use Cases for SaaS Businesses
-
-### Customer Support
-- **AI-powered customer service** with product knowledge
-- **Automated FAQ responses** based on your documentation
-- **24/7 customer assistance** without human intervention
-
-### User Onboarding
-- **Interactive product tours** with AI guidance
-- **Feature discovery** through conversational AI
-- **Self-service setup** with intelligent assistance
-
-### Product Intelligence
-- **User behavior analysis** through chat interactions
-- **Feature usage insights** from AI conversations
-- **Product improvement suggestions** based on user queries
-
-## 📚 Documentation
-
-### Core Components
-- **[Server Documentation](./server/README.md)** - Complete backend API setup and usage
-- **[Packages Documentation](./packages/README.md)** - Source-to-knowledge library development status
-- **[Web Documentation](./web/README.md)** - Embeddable widget SDK details
-
-### Quick Links
-- **API Documentation**: `http://localhost:3000/docs` (when server is running)
-- **Health Check**: `http://localhost:3000/health`
-
-## 🛠️ Development Setup
 
 ### Prerequisites
 - Docker & Docker Compose
 - Supabase project with vector extension
 - OpenAI API key
 
-### Local Development
+### 1. Clone and Setup
 ```bash
-# Clone repository
-git clone https://github.com/vezlo/vezlo.git
+git clone <repository-url>
 cd vezlo
-
-# Start server
-cd server
 cp env.example .env
 # Edit .env with your credentials
+```
+
+### 2. Start with Docker Compose
+```bash
+# From project root directory
+docker-compose up -d
+```
+
+### 3. Verify Installation
+```bash
+# Health check
+curl http://localhost:3000/health
+
+# API documentation
+open http://localhost:3000/docs
+```
+
+## 🔧 Environment Configuration
+
+Edit `.env` file with your credentials:
+
+```bash
+# REQUIRED - Supabase Configuration
+SUPABASE_URL=https://your-project-id.supabase.co
+SUPABASE_ANON_KEY=your-anon-key
+SUPABASE_SERVICE_KEY=your-service-role-key
+
+# REQUIRED - OpenAI Configuration
+OPENAI_API_KEY=sk-your-openai-api-key
+AI_MODEL=gpt-4o
+AI_TEMPERATURE=0.7
+AI_MAX_TOKENS=1000
+
+# OPTIONAL - Server Configuration
+PORT=3000
+NODE_ENV=production
+LOG_LEVEL=info
+
+# OPTIONAL - CORS Configuration
+CORS_ORIGINS=http://localhost:3000,http://localhost:5173
+
+# OPTIONAL - Rate Limiting
+RATE_LIMIT_WINDOW=60000
+RATE_LIMIT_MAX=100
+
+# OPTIONAL - Organization Settings
+ORGANIZATION_NAME=Vezlo
+ASSISTANT_NAME=Vezlo Assistant
+
+# OPTIONAL - Knowledge Base
+CHUNK_SIZE=1000
+CHUNK_OVERLAP=200
+```
+
+## 📚 API Documentation
+
+### Base URL
+```
+http://localhost:3000/api
+```
+
+### Interactive Documentation
+- **Swagger UI**: `http://localhost:3000/docs`
+- **Health Check**: `http://localhost:3000/health`
+
+### Core Endpoints
+
+#### Conversations
+- `POST /api/conversations` - Create new conversation
+- `GET /api/conversations/:uuid` - Get conversation with messages
+- `DELETE /api/conversations/:uuid` - Delete conversation
+- `GET /api/users/:uuid/conversations` - Get user conversations
+
+#### Messages
+- `POST /api/conversations/:uuid/messages` - Create user message
+- `POST /api/messages/:uuid/generate` - Generate AI response
+
+#### Knowledge Base
+- `POST /api/knowledge/items` - Create knowledge item
+- `GET /api/knowledge/items` - List knowledge items
+- `GET /api/knowledge/items/:uuid` - Get knowledge item
+- `PUT /api/knowledge/items/:uuid` - Update knowledge item
+- `DELETE /api/knowledge/items/:uuid` - Delete knowledge item
+- `POST /api/knowledge/search` - Search knowledge base
+
+#### Feedback
+- `POST /api/feedback` - Submit message feedback
+
+### WebSocket Events
+- `join-conversation` - Join conversation room
+- `conversation:message` - Real-time message updates
+
+## 💬 Conversation 2-API Flow
+
+The conversation system follows the industry-standard **2-API flow** pattern for AI chat applications:
+
+### 1. Create User Message
+```bash
+POST /api/conversations/{conversation-uuid}/messages
+```
+**Purpose**: Store the user's message in the conversation
+**Response**: Returns the user message with UUID
+
+### 2. Generate AI Response  
+```bash
+POST /api/messages/{message-uuid}/generate
+```
+**Purpose**: Generate AI response based on the user message
+**Response**: Returns the AI assistant's response
+
+### Why 2-API Flow?
+
+This pattern is the **global recognized standard** because:
+
+✅ **Separation of Concerns**
+- User message storage is separate from AI generation
+- Allows for message persistence even if AI generation fails
+- Enables message history and conversation management
+
+✅ **Reliability & Error Handling**
+- User messages are saved immediately
+- AI generation can be retried independently
+- Partial failures don't lose user input
+
+✅ **Scalability**
+- AI generation can be queued/processed asynchronously
+- Different rate limits for storage vs generation
+- Enables streaming responses and real-time updates
+
+✅ **Industry Standard**
+- Used by OpenAI, Anthropic, Google, and other major AI platforms
+- Familiar pattern for developers
+- Enables advanced features like message regeneration, threading, and branching
+
+### Example Flow:
+```bash
+# 1. User sends message
+curl -X POST /api/conversations/abc123/messages \
+  -d '{"content": "How do I integrate your API?"}'
+# Response: {"uuid": "msg456", "content": "How do I integrate your API?", ...}
+
+# 2. Generate AI response
+curl -X POST /api/messages/msg456/generate \
+  -d '{}'
+# Response: {"uuid": "msg789", "content": "To integrate our API...", ...}
+```
+
+## 🗄️ Database Setup
+
+Run the SQL schema in your Supabase SQL Editor:
+
+```bash
+# Copy the database schema file
+cp database-schema.sql /path/to/your/supabase/sql-editor
+```
+
+The `database-schema.sql` file contains all necessary tables and functions:
+- **conversations** - Chat conversation management
+- **messages** - Individual messages within conversations  
+- **message_feedback** - User feedback on messages
+- **knowledge_items** - Knowledge base items with vector embeddings
+- **match_knowledge_items()** - Vector similarity search function
+
+## 🐳 Docker Commands
+
+```bash
+# Start services
 docker-compose up -d
 
-# Verify installation
+# View logs
+docker-compose logs -f vezlo-server
+
+# Stop services
+docker-compose down
+
+# Rebuild and start
+docker-compose up -d --build
+
+# View running containers
+docker-compose ps
+
+# Access container shell
+docker exec -it vezlo-server sh
+```
+
+## 🧪 Testing the API
+
+### Health Check
+```bash
 curl http://localhost:3000/health
+```
+
+### Complete Conversation Flow
+```bash
+# 1. Create conversation
+CONV_UUID=$(curl -X POST http://localhost:3000/api/conversations \
+  -H "Content-Type: application/json" \
+  -d '{"title": "Test Conversation", "user_uuid": 12345, "company_uuid": 67890}' \
+  | jq -r '.uuid')
+
+# 2. Send user message
+MSG_UUID=$(curl -X POST http://localhost:3000/api/conversations/$CONV_UUID/messages \
+  -H "Content-Type: application/json" \
+  -d '{"content": "Hello, how can you help me?"}' \
+  | jq -r '.uuid')
+
+# 3. Generate AI response
+curl -X POST http://localhost:3000/api/messages/$MSG_UUID/generate \
+  -H "Content-Type: application/json" \
+  -d '{}'
+```
+
+### Search Knowledge Base
+```bash
+curl -X POST http://localhost:3000/api/knowledge/search \
+  -H "Content-Type: application/json" \
+  -d '{
+    "query": "How to use the API?",
+    "limit": 5,
+    "threshold": 0.7,
+    "type": "hybrid"
+  }'
+```
+
+## 🔧 Development
+
+### Local Development Setup
+```bash
+# Install dependencies
+npm install
+
+# Build TypeScript
+npm run build
+
+# Start development server
+npm run dev
+
+# Run tests
+npm test
 ```
 
 ### Project Structure
 ```
 vezlo/
-├── README.md              ← This file (SDK overview)
-├── server/                ← Backend APIs (✅ Ready)
-│   ├── README.md         ← Complete server documentation
-│   ├── src/              ← TypeScript source code
-│   ├── Dockerfile        ← Production container
-│   └── env.example       ← Environment configuration
-├── packages/              ← Source-to-knowledge library (🚧 Coming Soon)
-│   └── README.md         ← Development status and separate repo info
-└── web/                   ← Embeddable widget SDK (🚧 Coming Soon)
-    └── README.md         ← Widget SDK features
+├── docs/                # Documentation
+│   ├── DEVELOPER_GUIDELINES.md
+│   └── MIGRATIONS.md
+├── src/
+│   ├── config/          # Configuration files
+│   ├── controllers/     # API route handlers
+│   ├── middleware/      # Express middleware
+│   ├── schemas/         # API request/response schemas
+│   ├── services/        # Business logic services
+│   ├── storage/         # Database repositories
+│   ├── types/           # TypeScript type definitions
+│   ├── migrations/      # Database migrations
+│   └── server.ts        # Main application entry
+├── scripts/             # Utility scripts
+├── Dockerfile           # Production container
+├── docker-compose.yml   # Docker Compose configuration
+├── knexfile.ts          # Database configuration
+├── env.example          # Environment template
+├── package.json         # Dependencies and scripts
+└── tsconfig.json        # TypeScript configuration
 ```
 
 ## 🚀 Production Deployment
 
-### Server Deployment
-The server is production-ready with Docker:
+### Environment Variables
+Ensure all required environment variables are set:
+- `SUPABASE_URL` and `SUPABASE_SERVICE_KEY` (required)
+- `OPENAI_API_KEY` (required)
+- `NODE_ENV=production`
+- `CORS_ORIGINS` (set to your domain)
 
+### Docker Production
 ```bash
-# Production deployment
-docker-compose up -d
+# Build production image
+docker build -t vezlo-server .
 
-# Environment configuration
-cp server/env.example server/.env
-# Edit .env with production values
+# Run production container
+docker run -d \
+  --name vezlo-server \
+  -p 3000:3000 \
+  --env-file .env \
+  vezlo-server
 ```
 
-**Production Features:**
-- ✅ Docker containerization
-- ✅ Health checks and monitoring
-- ✅ Rate limiting and security
-- ✅ Logging and error handling
-- ✅ Supabase integration
-- ✅ OpenAI API integration
-
-## 📊 Current Status
-
-### ✅ Production Ready
-- **Backend APIs** - Complete REST API with WebSocket support
-- **Knowledge Base** - Vector search with Supabase
-- **Source-to-Knowledge** - Local knowledge base generation (separate repository)
-- **Docker Deployment** - Production-ready containerization
-
-### 🚧 In Development
-- **Server Integration** - Work in progress to sync local knowledge base to server
-- **Widget SDK** - Work in progress on embeddable widget configuration and deployment
+### Health Monitoring
+- Health check endpoint: `/health`
+- Docker health check configured
+- Logs available in `./logs/` directory
 
 ## 🤝 Contributing
 
@@ -176,35 +324,45 @@ cp server/env.example server/.env
 1. Fork the repository
 2. Create feature branch: `git checkout -b feature/new-feature`
 3. Make changes and test locally
-4. Commit: `git commit -m 'Add new feature'`
-5. Push: `git push origin feature/new-feature`
-6. Submit pull request
+4. Run tests: `npm test`
+5. Commit: `git commit -m 'Add new feature'`
+6. Push: `git push origin feature/new-feature`
+7. Submit pull request
 
-### Areas for Contribution
-- **Backend APIs** - Server improvements and new endpoints
-- **Source-to-Knowledge** - Help improve the src-to-kb library
-- **Widget SDK** - Contribute to the embeddable widget system
-- **Documentation** - Improve guides and examples
+### Code Standards
+- **TypeScript** - Full type safety required
+- **ESLint** - Code formatting and quality
+- **Prettier** - Consistent code style
+- **Tests** - Unit tests for new features
+- **Documentation** - Update README for API changes
 
-### Community
-- **GitHub**: [vezlo/vezlo](https://github.com/vezlo/vezlo) - Main repository
-- **src-to-kb**: [vezlo/src-to-kb](https://github.com/vezlo/src-to-kb) - Source-to-knowledge library
-- **Issues**: [Report bugs and request features](https://github.com/vezlo/vezlo/issues)
-- **Discussions**: [Community discussions](https://github.com/vezlo/vezlo/discussions)
+### API Development
+- Follow RESTful conventions
+- Use proper HTTP status codes
+- Include comprehensive error handling
+- Update Swagger documentation
+- Add request/response schemas
 
-## 🔒 Security & Privacy
+## 📊 Performance & Security
 
-### Data Protection
-- **Your Data Stays Yours** - All data stored in your Supabase instance
-- **No Third-Party Processing** - OpenAI API calls only for AI responses
-- **Configurable CORS** - Control which domains can access your APIs
-- **Rate Limiting** - Prevent abuse and ensure fair usage
+### Performance
+- **Response Time**: Optimized for fast API responses
+- **Concurrent Users**: Supports multiple concurrent users
+- **Memory Usage**: Efficient memory management
+- **Database**: Supabase vector operations integration
 
-### Best Practices
-- Use environment variables for sensitive data
-- Regular dependency updates
-- Monitor logs for suspicious activity
-- Configure proper CORS origins
+### Security Features
+- **Rate Limiting** - Configurable request limits
+- **CORS Protection** - Configurable origins
+- **Input Validation** - Request schema validation
+- **Error Handling** - Secure error responses
+- **Health Monitoring** - Application logs and Docker health checks
+
+## 📚 Documentation
+
+- **[Developer Guidelines](docs/DEVELOPER_GUIDELINES.md)** - Development workflow, coding standards, and best practices
+- **[Database Migrations](docs/MIGRATIONS.md)** - Complete guide to Knex.js migration system
+- **[API Documentation](http://localhost:3000/docs)** - Interactive Swagger documentation (when running)
 
 ## 📄 License
 
@@ -213,23 +371,6 @@ This project is dual-licensed:
 - **Non-Commercial Use**: Free under AGPL-3.0 license
 - **Commercial Use**: Requires a commercial license - contact us for details
 
-The source-to-knowledge library ([src-to-kb](https://github.com/vezlo/src-to-kb)) follows the same dual-licensing model.
-
-## 🙏 Acknowledgments
-
-Built with ❤️ by the Vezlo team and contributors.
-
-Special thanks to:
-- OpenAI for the incredible AI models
-- Supabase for the backend infrastructure
-- The open-source community for inspiration
-
 ---
 
-<div align="center">
-
-**[🚀 Get Started with Server](./server/README.md)** | **[📦 Source-to-Knowledge Library](https://github.com/vezlo/src-to-kb)** | **[🌐 Widget SDK](./web/README.md)** | **[💬 GitHub](https://github.com/vezlo/vezlo)**
-
-**Made with ❤️ for the developer community**
-
-</div>
+**Status**: ✅ Production Ready | **Version**: 1.0.0 | **Node.js**: 20+ | **TypeScript**: 5+
