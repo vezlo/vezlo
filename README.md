@@ -177,7 +177,7 @@ vercel
 2. **Get Credentials**: Collect Supabase and OpenAI credentials
 3. **Configure Environment Variables** in Vercel project settings
 
-See [VERCEL_DEPLOYMENT.md](VERCEL_DEPLOYMENT.md) for detailed deployment guide.
+See [docs/VERCEL_DEPLOYMENT.md](docs/VERCEL_DEPLOYMENT.md) for detailed deployment guide.
 
 ## 🔧 Environment Configuration
 
