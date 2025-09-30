@@ -5,6 +5,12 @@
       "destination": "/api/index"
     }
   ],
+  "functions": {
+    "api/**/*.ts": {
+      "memory": 1024,
+      "maxDuration": 60
+    }
+  },
   "env": {
     "NODE_ENV": "production"
   }
