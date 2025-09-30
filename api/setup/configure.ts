@@ -13,8 +13,7 @@ import { join } from 'path';
 interface SetupConfig {
   supabase_url: string;
   supabase_service_key: string;
-  db_host?: string;  // Optional - will try to extract from URL if not provided
-  db_password: string;
+  db_connection_string: string;  // Full postgres connection string
   openai_api_key: string;
   ai_model?: string;
 }
@@ -38,59 +37,28 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const config: SetupConfig = req.body;
 
     // Validate required fields
-    if (!config.supabase_url || !config.supabase_service_key || !config.db_password || !config.openai_api_key) {
+    if (!config.supabase_url || !config.supabase_service_key || !config.db_connection_string || !config.openai_api_key) {
       return res.status(400).json({
         success: false,
         error: 'Missing required fields'
       });
     }
 
-    // Step 1: Validate Supabase connection (just test the client creation)
+    // Step 1: Validate Supabase connection
     console.log('Validating Supabase connection...');
-    try {
-      const supabase = createClient(config.supabase_url, config.supabase_service_key);
-      // Just verify the client was created - don't check for tables yet
-      console.log('Supabase client created successfully');
-    } catch (error: any) {
-      console.error('Supabase connection failed:', error);
-      return res.status(400).json({
-        success: false,
-        error: `Supabase connection failed: ${error.message}`
-      });
-    }
+    const supabase = createClient(config.supabase_url, config.supabase_service_key);
 
-    // Step 2: Determine database host
-    let dbHost: string;
-
-    if (config.db_host) {
-      // User provided database host directly
-      dbHost = config.db_host;
-    } else {
-      // Try to extract from Supabase URL
-      // Modern Supabase uses pooler format: aws-0-[region].pooler.supabase.com
-      // But we need the direct connection, which is in the Database Settings
-      return res.status(400).json({
-        success: false,
-        error: 'Database host is required. Please find it in Supabase Dashboard > Settings > Database > Connection String (Direct connection)',
-        hint: 'Look for "Host" in the connection info - it should look like: aws-0-us-east-1.pooler.supabase.com or db.xxxxx.supabase.co'
-      });
-    }
-
-    // Step 3: Connect to database directly
-    console.log('Connecting to PostgreSQL database...');
+    // Step 2: Connect to PostgreSQL using connection string
+    console.log('Connecting to database...');
     const pgClient = new Client({
-      host: dbHost,
-      port: 5432,
-      database: 'postgres',
-      user: 'postgres',
-      password: config.db_password,
+      connectionString: config.db_connection_string,
       ssl: { rejectUnauthorized: false }
     });
 
     await pgClient.connect();
     console.log('Connected to database');
 
-    // Step 4: Execute database schema
+    // Step 3: Execute database schema
     console.log('Creating database tables...');
     const schemaPath = join(process.cwd(), 'database-schema.sql');
     const schema = readFileSync(schemaPath, 'utf8');
@@ -98,7 +66,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     await pgClient.query(schema);
     console.log('Tables created successfully');
 
-    // Step 5: Verify tables were created
+    // Step 4: Verify tables were created
     const tablesResult = await pgClient.query(`
       SELECT table_name
       FROM information_schema.tables

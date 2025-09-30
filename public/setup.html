@@ -276,15 +276,9 @@
                 </div>
 
                 <div class="form-group">
-                    <label>Database Host *</label>
-                    <input type="text" id="db_host" placeholder="aws-0-us-east-1.pooler.supabase.com" required>
-                    <div class="help-text">Found in Settings → Database → Connection Info → Host</div>
-                </div>
-
-                <div class="form-group">
-                    <label>Database Password *</label>
-                    <input type="password" id="db_password" placeholder="Your database password" required>
-                    <div class="help-text">Found in Settings → Database → Database password</div>
+                    <label>Database Connection String *</label>
+                    <input type="password" id="db_connection_string" placeholder="postgresql://postgres:[password]@db.xxx.supabase.co:5432/postgres" required>
+                    <div class="help-text">Found in Settings → Database → Connection string (use the full URI with your password)</div>
                 </div>
 
                 <div class="button-group">
@@ -409,14 +403,13 @@
             const config = {
                 supabase_url: document.getElementById('supabase_url').value,
                 supabase_service_key: document.getElementById('supabase_service_key').value,
-                db_host: document.getElementById('db_host').value,
-                db_password: document.getElementById('db_password').value,
+                db_connection_string: document.getElementById('db_connection_string').value,
                 openai_api_key: document.getElementById('openai_api_key').value,
                 ai_model: document.getElementById('ai_model').value
             };
 
             // Validate required fields
-            if (!config.supabase_url || !config.supabase_service_key || !config.db_host || !config.db_password || !config.openai_api_key) {
+            if (!config.supabase_url || !config.supabase_service_key || !config.db_connection_string || !config.openai_api_key) {
                 alert('Please fill in all required fields');
                 return;
             }
