@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vezlo Assistant Server - Setup Wizard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 800px;
+            width: 100%;
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 14px;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .step {
+            display: none;
+        }
+
+        .step.active {
+            display: block;
+            animation: fadeIn 0.3s;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .step-indicator {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 30px;
+            gap: 10px;
+        }
+
+        .step-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #e0e0e0;
+            transition: all 0.3s;
+        }
+
+        .step-dot.active {
+            background: #667eea;
+            transform: scale(1.3);
+        }
+
+        .step-dot.completed {
+            background: #10b981;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #374151;
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .help-text {
+            font-size: 12px;
+            color: #6b7280;
+            margin-top: 4px;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 30px;
+        }
+
+        button {
+            flex: 1;
+            padding: 14px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #f3f4f6;
+            color: #374151;
+        }
+
+        .btn-secondary:hover {
+            background: #e5e7eb;
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .alert {
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+
+        .alert-info {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        .alert-success {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .alert-error {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .loader {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .success-icon {
+            text-align: center;
+            font-size: 60px;
+            margin-bottom: 20px;
+        }
+
+        .code-block {
+            background: #1f2937;
+            color: #f9fafb;
+            padding: 16px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            overflow-x: auto;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 Vezlo Assistant Server</h1>
+            <p>Web-Based Setup Wizard for Vercel Deployment</p>
+        </div>
+
+        <div class="content">
+            <div class="step-indicator">
+                <div class="step-dot active" data-step="1"></div>
+                <div class="step-dot" data-step="2"></div>
+                <div class="step-dot" data-step="3"></div>
+                <div class="step-dot" data-step="4"></div>
+            </div>
+
+            <!-- Step 1: Welcome -->
+            <div class="step active" id="step1">
+                <h2 style="margin-bottom: 20px;">Welcome to Setup Wizard</h2>
+                <div class="alert alert-info">
+                    This wizard will help you configure your Vezlo Assistant Server deployed on Vercel. You'll need your Supabase and OpenAI credentials ready.
+                </div>
+                <p style="margin-bottom: 20px;">What we'll configure:</p>
+                <ul style="margin-left: 20px; margin-bottom: 20px; line-height: 1.8;">
+                    <li>✅ Database connection (Supabase)</li>
+                    <li>✅ OpenAI API configuration</li>
+                    <li>✅ Automatic table creation</li>
+                    <li>✅ Connection validation</li>
+                </ul>
+                <div class="button-group">
+                    <button class="btn-primary" onclick="nextStep()">Get Started →</button>
+                </div>
+            </div>
+
+            <!-- Step 2: Database Configuration -->
+            <div class="step" id="step2">
+                <h2 style="margin-bottom: 20px;">Database Configuration</h2>
+                <div class="alert alert-info">
+                    Get these credentials from your Supabase Dashboard → Settings → API and Database
+                </div>
+
+                <div class="form-group">
+                    <label>Supabase Project URL *</label>
+                    <input type="url" id="supabase_url" placeholder="https://your-project.supabase.co" required>
+                    <div class="help-text">Found in Settings → API</div>
+                </div>
+
+                <div class="form-group">
+                    <label>Supabase Service Role Key *</label>
+                    <input type="password" id="supabase_service_key" placeholder="eyJhbG..." required>
+                    <div class="help-text">Found in Settings → API (Keep this secret!)</div>
+                </div>
+
+                <div class="form-group">
+                    <label>Database Password *</label>
+                    <input type="password" id="db_password" placeholder="Your database password" required>
+                    <div class="help-text">Found in Settings → Database → Connection string</div>
+                </div>
+
+                <div class="button-group">
+                    <button class="btn-secondary" onclick="prevStep()">← Back</button>
+                    <button class="btn-primary" onclick="nextStep()">Continue →</button>
+                </div>
+            </div>
+
+            <!-- Step 3: OpenAI Configuration -->
+            <div class="step" id="step3">
+                <h2 style="margin-bottom: 20px;">OpenAI Configuration</h2>
+                <div class="alert alert-info">
+                    Get your API key from <a href="https://platform.openai.com/api-keys" target="_blank" style="color: #1e40af; text-decoration: underline;">OpenAI Platform</a>
+                </div>
+
+                <div class="form-group">
+                    <label>OpenAI API Key *</label>
+                    <input type="password" id="openai_api_key" placeholder="sk-..." required>
+                    <div class="help-text">Starts with "sk-"</div>
+                </div>
+
+                <div class="form-group">
+                    <label>AI Model</label>
+                    <select id="ai_model">
+                        <option value="gpt-4o">GPT-4O (Recommended)</option>
+                        <option value="gpt-4-turbo">GPT-4 Turbo</option>
+                        <option value="gpt-4">GPT-4</option>
+                        <option value="gpt-3.5-turbo">GPT-3.5 Turbo</option>
+                    </select>
+                </div>
+
+                <div class="button-group">
+                    <button class="btn-secondary" onclick="prevStep()">← Back</button>
+                    <button class="btn-primary" onclick="validateAndSetup()">Setup Database →</button>
+                </div>
+            </div>
+
+            <!-- Step 4: Setup & Completion -->
+            <div class="step" id="step4">
+                <div id="setup-progress">
+                    <h2 style="margin-bottom: 20px;">Setting Up Your Server...</h2>
+                    <div class="loader"></div>
+                    <p style="text-align: center; color: #6b7280;">Please wait while we configure your database and create tables.</p>
+                </div>
+
+                <div id="setup-success" style="display: none;">
+                    <div class="success-icon">✅</div>
+                    <h2 style="text-align: center; margin-bottom: 20px;">Setup Complete!</h2>
+                    <div class="alert alert-success">
+                        Your Vezlo Assistant Server is now configured and ready to use.
+                    </div>
+
+                    <h3 style="margin: 30px 0 15px;">Next Steps:</h3>
+                    <ol style="margin-left: 20px; line-height: 1.8;">
+                        <li>Your environment variables have been saved to Vercel</li>
+                        <li>Database tables have been created successfully</li>
+                        <li>Test your API: <code style="background: #f3f4f6; padding: 2px 6px; border-radius: 4px;">/health</code></li>
+                        <li>View documentation: <code style="background: #f3f4f6; padding: 2px 6px; border-radius: 4px;">/docs</code></li>
+                    </ol>
+
+                    <div class="button-group">
+                        <button class="btn-primary" onclick="window.location.href='/docs'">View API Docs →</button>
+                    </div>
+                </div>
+
+                <div id="setup-error" style="display: none;">
+                    <h2 style="margin-bottom: 20px;">⚠️ Setup Failed</h2>
+                    <div class="alert alert-error" id="error-message"></div>
+                    <div class="button-group">
+                        <button class="btn-secondary" onclick="restartSetup()">← Start Over</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentStep = 1;
+        const totalSteps = 4;
+
+        function updateStepIndicators() {
+            document.querySelectorAll('.step-dot').forEach((dot, index) => {
+                const stepNum = index + 1;
+                dot.classList.remove('active', 'completed');
+                if (stepNum < currentStep) {
+                    dot.classList.add('completed');
+                } else if (stepNum === currentStep) {
+                    dot.classList.add('active');
+                }
+            });
+        }
+
+        function nextStep() {
+            if (currentStep < totalSteps) {
+                document.getElementById(`step${currentStep}`).classList.remove('active');
+                currentStep++;
+                document.getElementById(`step${currentStep}`).classList.add('active');
+                updateStepIndicators();
+            }
+        }
+
+        function prevStep() {
+            if (currentStep > 1) {
+                document.getElementById(`step${currentStep}`).classList.remove('active');
+                currentStep--;
+                document.getElementById(`step${currentStep}`).classList.add('active');
+                updateStepIndicators();
+            }
+        }
+
+        function restartSetup() {
+            currentStep = 1;
+            document.querySelectorAll('.step').forEach(step => step.classList.remove('active'));
+            document.getElementById('step1').classList.add('active');
+            document.getElementById('setup-progress').style.display = 'block';
+            document.getElementById('setup-success').style.display = 'none';
+            document.getElementById('setup-error').style.display = 'none';
+            updateStepIndicators();
+        }
+
+        async function validateAndSetup() {
+            const config = {
+                supabase_url: document.getElementById('supabase_url').value,
+                supabase_service_key: document.getElementById('supabase_service_key').value,
+                db_password: document.getElementById('db_password').value,
+                openai_api_key: document.getElementById('openai_api_key').value,
+                ai_model: document.getElementById('ai_model').value
+            };
+
+            // Validate required fields
+            if (!config.supabase_url || !config.supabase_service_key || !config.db_password || !config.openai_api_key) {
+                alert('Please fill in all required fields');
+                return;
+            }
+
+            // Move to setup step
+            nextStep();
+
+            try {
+                // Call setup API endpoint
+                const response = await fetch('/api/setup/configure', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(config)
+                });
+
+                const result = await response.json();
+
+                if (response.ok && result.success) {
+                    // Show success
+                    document.getElementById('setup-progress').style.display = 'none';
+                    document.getElementById('setup-success').style.display = 'block';
+                } else {
+                    // Show error
+                    document.getElementById('setup-progress').style.display = 'none';
+                    document.getElementById('setup-error').style.display = 'block';
+                    document.getElementById('error-message').textContent = result.error || 'Unknown error occurred';
+                }
+            } catch (error) {
+                document.getElementById('setup-progress').style.display = 'none';
+                document.getElementById('setup-error').style.display = 'block';
+                document.getElementById('error-message').textContent = error.message;
+            }
+        }
+    </script>
+</body>
+</html>

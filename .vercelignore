@@ -1,0 +1,57 @@
+# Dependencies
+node_modules/
+
+# Development files
+.env
+.env.*
+!.env.example
+
+# Git
+.git/
+.gitignore
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# Logs
+logs/
+*.log
+
+# Tests
+test/
+tests/
+*.test.js
+*.spec.js
+
+# Documentation
+docs/
+*.md
+!README.md
+
+# Claude Code
+CLAUDE.md
+.claude/
+
+# Build artifacts
+dist-test/
+tmp/
+temp/
+
+# Scripts (not needed for runtime)
+scripts/setup.js
+scripts/validate-db.js
+scripts/entrypoint.sh
+
+# Docker files
+Dockerfile
+docker-compose.yml
+.dockerignore
+
+# Note: database-schema.sql and knexfile.ts are needed for setup wizard
+
+# Package manager
+package-lock.json
+yarn.lock
+pnpm-lock.yaml

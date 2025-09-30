@@ -12,35 +12,172 @@
 - **Database Migrations** - Knex.js migration system for schema management
 - **Production Ready** - Docker containerization with health checks
 
-## 🚀 Quick Start
+## 📦 Installation
+
+### Option 1: Install from npm (Recommended)
+
+```bash
+# Install globally
+npm install -g @vezlo/assistant-server
+
+# Or install in your project
+npm install @vezlo/assistant-server
+```
+
+### Option 2: Clone from GitHub
+
+```bash
+git clone https://github.com/vezlo/assistant-server.git
+cd assistant-server
+npm install
+```
+
+## 🚀 Quick Start (Interactive Setup)
 
 ### Prerequisites
-- Docker & Docker Compose
-- Supabase project with vector extension
+- Node.js 20+ and npm 9+
+- Supabase project (or PostgreSQL database)
 - OpenAI API key
 
-### 1. Clone and Setup
+### Easy Setup with Interactive Wizard
+
+The fastest way to get started is with our interactive setup wizard:
+
 ```bash
-git clone <repository-url>
-cd vezlo
+# If installed globally
+vezlo-setup
+
+# If installed locally
+npx vezlo-setup
+
+# Or if cloned from GitHub
+npm run setup
+```
+
+The wizard will guide you through:
+1. **Database Configuration** - Choose Supabase or PostgreSQL
+2. **OpenAI API Setup** - Configure your AI model
+3. **Automatic Table Creation** - Creates all required database tables
+4. **Environment File Generation** - Saves configuration to .env
+
+After setup completes, start the server:
+
+```bash
+vezlo-server
+```
+
+### Manual Setup (Advanced)
+
+If you prefer manual configuration:
+
+#### 1. Create Environment File
+
+```bash
+# Copy example file
 cp env.example .env
-# Edit .env with your credentials
+
+# Edit with your credentials
+nano .env
 ```
 
-### 2. Start with Docker Compose
+#### 2. Configure Database
+
+Get your Supabase credentials from:
+- **Dashboard** → Settings → API
+- **Database** → Settings → Connection string
+
+```env
+# Supabase Configuration
+SUPABASE_URL=https://your-project.supabase.co
+SUPABASE_SERVICE_KEY=your-service-role-key
+SUPABASE_DB_HOST=db.your-project.supabase.co
+SUPABASE_DB_PASSWORD=your-database-password
+
+# OpenAI Configuration
+OPENAI_API_KEY=sk-your-api-key
+```
+
+#### 3. Setup Database Tables
+
+**Option A: Automated Setup**
 ```bash
-# From project root directory
+vezlo-setup  # Run wizard and choose option 3 to use existing .env
+```
+
+**Option B: Manual SQL**
+```bash
+# Copy schema to Supabase SQL Editor
+cat database-schema.sql
+
+# Then execute in Supabase Dashboard → SQL Editor
+```
+
+#### 4. Validate Setup
+
+```bash
+# Verify database connection and tables
+vezlo-validate
+
+# Or with npm
+npm run validate
+```
+
+#### 5. Start Server
+
+```bash
+# If installed globally
+vezlo-server
+
+# If installed locally
+npx vezlo-server
+
+# Or from source
+npm run build && npm start
+```
+
+### Docker Deployment
+
+```bash
+# Start with Docker Compose
 docker-compose up -d
+
+# View logs
+docker-compose logs -f vezlo-server
 ```
 
-### 3. Verify Installation
+## ☁️ Vercel Deployment
+
+Deploy to Vercel's serverless platform with one click:
+
+### One-Click Deploy
+
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/vezlo/assistant-server&env=SUPABASE_URL,SUPABASE_SERVICE_KEY,SUPABASE_DB_HOST,SUPABASE_DB_PASSWORD,OPENAI_API_KEY&envDescription=Required%20environment%20variables&envLink=https://github.com/vezlo/assistant-server/blob/main/.env.vercel.example)
+
+This will:
+- Fork the repository to your GitHub
+- Create a Vercel project
+- Prompt for required environment variables
+- Deploy automatically
+
+### Manual Vercel Deploy
+
 ```bash
-# Health check
-curl http://localhost:3000/health
+# Install Vercel CLI
+npm i -g vercel
 
-# API documentation
-open http://localhost:3000/docs
+# Deploy
+vercel
+
+# Follow prompts to configure
 ```
+
+### Prerequisites for Vercel
+
+1. **Setup Database First**: Run `vezlo-setup` locally or execute `database-schema.sql` in Supabase
+2. **Get Credentials**: Collect Supabase and OpenAI credentials
+3. **Configure Environment Variables** in Vercel project settings
+
+See [docs/VERCEL_DEPLOYMENT.md](docs/VERCEL_DEPLOYMENT.md) for detailed deployment guide.
 
 ## 🔧 Environment Configuration
 
@@ -77,6 +214,28 @@ ASSISTANT_NAME=Vezlo Assistant
 # OPTIONAL - Knowledge Base
 CHUNK_SIZE=1000
 CHUNK_OVERLAP=200
+```
+
+## 🔧 CLI Commands
+
+The package provides these command-line tools:
+
+### vezlo-setup
+Interactive wizard for initial configuration and database setup.
+```bash
+vezlo-setup
+```
+
+### vezlo-validate
+Validates database connection and verifies all tables exist.
+```bash
+vezlo-validate
+```
+
+### vezlo-server
+Starts the API server.
+```bash
+vezlo-server
 ```
 
 ## 📚 API Documentation

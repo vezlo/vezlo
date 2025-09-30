@@ -1,0 +1,81 @@
+# Source files (only ship compiled dist/)
+src/
+*.ts
+!*.d.ts
+tsconfig.json
+
+# Tests
+test/
+tests/
+*.test.js
+*.spec.js
+
+# Development files
+.env
+.env.*
+!env.example
+
+# Documentation (keep README.md and LICENSE)
+docs/
+*.md
+!README.md
+
+# Git
+.git/
+.gitignore
+.gitattributes
+
+# CI/CD
+.github/
+.gitlab-ci.yml
+.travis.yml
+circle.yml
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Runtime data
+pids/
+*.pid
+*.seed
+*.pid.lock
+
+# Coverage
+coverage/
+.nyc_output/
+
+# Build artifacts not needed in package
+node_modules/
+dist-test/
+tmp/
+temp/
+
+# Claude Code (local development)
+CLAUDE.md
+.claude/
+
+# Docker development files (keep Dockerfile and docker-compose.yml for users)
+.dockerignore
+
+# Package manager
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Misc
+.cache/
+*.backup
+*.bak
+*.tmp
