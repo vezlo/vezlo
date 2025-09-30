@@ -335,3 +335,7 @@ docs/generated/
 *.njsproj
 *.sln
 *.sw?
+
+# Claude Code configuration (local development only)
+CLAUDE.md
+.claude/
