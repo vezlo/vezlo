@@ -3,7 +3,7 @@ version: '3.8'
 services:
   vezlo-server:
     build: 
-      context: ./server
+      context: .
       dockerfile: Dockerfile
     container_name: vezlo-server
     restart: unless-stopped
@@ -15,9 +15,9 @@ services:
       - LOG_LEVEL=info
       - CORS_ORIGINS=http://localhost:3000,http://localhost:5173
     env_file:
-      - ./server/.env
+      - ./.env
     volumes:
-      - ./server/logs:/app/logs
+      - ./logs:/app/logs
     healthcheck:
       test: ["CMD", "node", "-e", "require('http').get('http://localhost:3000/health', (res) => { process.exit(res.statusCode === 200 ? 0 : 1) })"]
       interval: 30s

@@ -1,5 +1,5 @@
 import knex, { Knex } from 'knex';
-import config from '../knexfile';
+import config from '../../knexfile';
 
 // Get the appropriate configuration based on environment
 const getConfig = (): Knex.Config => {

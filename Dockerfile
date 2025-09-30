@@ -10,9 +10,10 @@ COPY tsconfig.json ./
 # Install all dependencies (including dev for building)
 RUN npm ci && npm cache clean --force
 
-# Copy source code and scripts
+# Copy source code, scripts, and knexfile
 COPY src ./src
 COPY scripts ./scripts
+COPY knexfile.ts ./
 
 # Build the application
 RUN npm run build
@@ -38,7 +39,7 @@ RUN npm ci --only=production && npm install ts-node && npm cache clean --force
 # Copy built application, migrations, and scripts from builder
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/src/migrations ./src/migrations
-COPY --from=builder /app/src/knexfile.ts ./knexfile.ts
+COPY --from=builder /app/knexfile.ts ./knexfile.ts
 COPY --from=builder /app/scripts ./scripts
 
 # Make entrypoint script executable and set ownership
@@ -60,4 +61,4 @@ HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
 
 # Start the application with migration runner
 ENTRYPOINT ["dumb-init", "--"]
-CMD ["./scripts/entrypoint.sh", "node", "dist/server.js"]
+CMD ["./scripts/entrypoint.sh", "node", "dist/src/server.js"]
