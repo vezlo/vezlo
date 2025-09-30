@@ -1,0 +1,64 @@
+# Dependencies
+node_modules/
+
+# Source files (we need compiled dist/)
+src/
+
+# Development files
+.env
+.env.*
+!.env.example
+
+# Git
+.git/
+.gitignore
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# Logs
+logs/
+*.log
+
+# Tests
+test/
+tests/
+*.test.js
+*.spec.js
+
+# Documentation
+docs/
+*.md
+!README.md
+
+# Claude Code
+CLAUDE.md
+.claude/
+
+# Build artifacts
+dist-test/
+tmp/
+temp/
+
+# Scripts (not needed for runtime)
+scripts/setup.js
+scripts/validate-db.js
+scripts/entrypoint.sh
+
+# Docker files
+Dockerfile
+docker-compose.yml
+.dockerignore
+
+# Database
+database-schema.sql
+
+# Migrations (handled separately)
+knexfile.ts
+
+# Package manager
+package-lock.json
+yarn.lock
+pnpm-lock.yaml

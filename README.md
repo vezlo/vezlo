@@ -145,6 +145,40 @@ docker-compose up -d
 docker-compose logs -f vezlo-server
 ```
 
+## ☁️ Vercel Deployment
+
+Deploy to Vercel's serverless platform with one click:
+
+### One-Click Deploy
+
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/vezlo/assistant-server&env=SUPABASE_URL,SUPABASE_SERVICE_KEY,SUPABASE_DB_HOST,SUPABASE_DB_PASSWORD,OPENAI_API_KEY&envDescription=Required%20environment%20variables&envLink=https://github.com/vezlo/assistant-server/blob/main/.env.vercel.example)
+
+This will:
+- Fork the repository to your GitHub
+- Create a Vercel project
+- Prompt for required environment variables
+- Deploy automatically
+
+### Manual Vercel Deploy
+
+```bash
+# Install Vercel CLI
+npm i -g vercel
+
+# Deploy
+vercel
+
+# Follow prompts to configure
+```
+
+### Prerequisites for Vercel
+
+1. **Setup Database First**: Run `vezlo-setup` locally or execute `database-schema.sql` in Supabase
+2. **Get Credentials**: Collect Supabase and OpenAI credentials
+3. **Configure Environment Variables** in Vercel project settings
+
+See [VERCEL_DEPLOYMENT.md](VERCEL_DEPLOYMENT.md) for detailed deployment guide.
+
 ## 🔧 Environment Configuration
 
 Edit `.env` file with your credentials:
