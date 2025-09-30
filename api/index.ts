@@ -16,22 +16,22 @@ import { config } from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
-// Import configurations
-import logger from '../src/config/logger';
-import { initializeSupabase, getSupabaseClient } from '../src/config/database';
-import { specs, swaggerUi, swaggerUiOptions } from '../src/config/swagger';
-import { config as globalConfig } from '../src/config/global';
-import { errorHandler, notFoundHandler } from '../src/middleware/errorHandler';
+// Import configurations from compiled dist
+import logger from '../dist/config/logger.js';
+import { initializeSupabase, getSupabaseClient } from '../dist/config/database.js';
+import { specs, swaggerUi, swaggerUiOptions } from '../dist/config/swagger.js';
+import { config as globalConfig } from '../dist/config/global.js';
+import { errorHandler, notFoundHandler } from '../dist/middleware/errorHandler.js';
 
-// Import services
-import { AIService } from '../src/services/AIService';
-import { ChatManager } from '../src/services/ChatManager';
-import { KnowledgeBaseService } from '../src/services/KnowledgeBaseService';
-import { UnifiedStorage } from '../src/storage/UnifiedStorage';
+// Import services from compiled dist
+import { AIService } from '../dist/services/AIService.js';
+import { ChatManager } from '../dist/services/ChatManager.js';
+import { KnowledgeBaseService } from '../dist/services/KnowledgeBaseService.js';
+import { UnifiedStorage } from '../dist/storage/UnifiedStorage.js';
 
-// Import controllers
-import { ChatController } from '../src/controllers/ChatController';
-import { KnowledgeController } from '../src/controllers/KnowledgeController';
+// Import controllers from compiled dist
+import { ChatController } from '../dist/controllers/ChatController.js';
+import { KnowledgeController } from '../dist/controllers/KnowledgeController.js';
 
 // Load environment variables
 config();
