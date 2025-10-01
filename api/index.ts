@@ -158,7 +158,16 @@ function isEnvironmentConfigured(): boolean {
 
 // Redirect root to setup if not configured, otherwise to docs
 app.get('/', (req, res) => {
-  if (!isEnvironmentConfigured()) {
+  const isConfigured = isEnvironmentConfigured();
+  console.log('Root route check:', {
+    configured: isConfigured,
+    has_supabase_url: !!process.env.SUPABASE_URL,
+    has_openai_key: !!process.env.OPENAI_API_KEY,
+    supabase_url: process.env.SUPABASE_URL?.substring(0, 20) + '...',
+    openai_key: process.env.OPENAI_API_KEY?.substring(0, 10) + '...'
+  });
+  
+  if (!isConfigured) {
     res.redirect('/setup');
   } else {
     res.redirect('/docs');
@@ -175,7 +184,13 @@ app.get('/health', async (req, res) => {
       server: 'healthy',
       timestamp: new Date().toISOString(),
       platform: 'vercel',
-      configured: isEnvironmentConfigured()
+      configured: isEnvironmentConfigured(),
+      env_check: {
+        has_supabase_url: !!process.env.SUPABASE_URL,
+        has_openai_key: !!process.env.OPENAI_API_KEY,
+        supabase_url_length: process.env.SUPABASE_URL?.length || 0,
+        openai_key_length: process.env.OPENAI_API_KEY?.length || 0
+      }
     };
 
     // Only check Supabase if configured
