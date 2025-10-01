@@ -54,6 +54,15 @@ export const KnowledgeSchemas = {
     }
   },
 
+  RAGSearchRequest: {
+    type: 'object',
+    required: ['query'],
+    properties: {
+      query: { type: 'string', description: 'Search query for RAG', example: 'How do I reset my password?' },
+      company_uuid: { type: 'integer', description: 'Company UUID for filtering results', example: 1 }
+    }
+  },
+
   // ============================================================================
   // KNOWLEDGE ITEM RESPONSE SCHEMAS
   // ============================================================================
@@ -112,6 +121,13 @@ export const KnowledgeSchemas = {
       total: { type: 'integer', description: 'Total results found' },
       search_type: { type: 'string', description: 'Type of search performed' },
       threshold: { type: 'number', description: 'Similarity threshold used' }
+    }
+  },
+
+  RAGSearchResponse: {
+    type: 'object',
+    properties: {
+      response: { type: 'string', description: 'AI-generated response based on knowledge base' }
     }
   }
 };

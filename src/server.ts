@@ -112,7 +112,7 @@ async function initializeServices() {
 
     // Initialize controllers
     chatController = new ChatController(chatManager, storage);
-    knowledgeController = new KnowledgeController(knowledgeBase);
+    knowledgeController = new KnowledgeController(knowledgeBase, aiService);
 
     logger.info('All services initialized successfully');
   } catch (error) {
@@ -471,6 +471,33 @@ app.get('/api/knowledge/items', (req, res) => knowledgeController.listItems(req,
  *         description: Internal server error
  */
 app.post('/api/knowledge/search', (req, res) => knowledgeController.search(req, res));
+
+/**
+ * @swagger
+ * /api/search:
+ *   post:
+ *     summary: RAG Search
+ *     description: Perform RAG (Retrieval-Augmented Generation) search that combines knowledge base search with AI response generation
+ *     tags: [Search]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/RAGSearchRequest'
+ *     responses:
+ *       200:
+ *         description: RAG search response
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/RAGSearchResponse'
+ *       400:
+ *         description: Bad request
+ *       500:
+ *         description: Internal server error
+ */
+app.post('/api/search', (req, res) => knowledgeController.ragSearch(req, res));
 
 /**
  * @swagger
