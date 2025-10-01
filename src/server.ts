@@ -82,12 +82,12 @@ async function initializeServices() {
     logger.info('Supabase client initialized');
 
     // Initialize storage with new repository pattern
-    storage = new UnifiedStorage(supabase);
+    storage = new UnifiedStorage(supabase, 'vezlo');
 
     // Initialize knowledge base
     knowledgeBase = new KnowledgeBaseService({
       supabase,
-      tableName: 'knowledge_items'
+      tableName: 'vezlo_knowledge_items'
     });
 
     // Initialize AI service
@@ -160,7 +160,7 @@ app.get('/health', async (req, res) => {
     // Check Supabase connection
     try {
       const supabase = getSupabaseClient();
-      const { data, error } = await supabase.from('conversations').select('count').limit(1);
+      const { data, error } = await supabase.from('vezlo_conversations').select('count').limit(1);
       if (!error) {
         healthChecks.supabase = 'connected';
       } else {
