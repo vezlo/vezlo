@@ -91,12 +91,12 @@ async function initializeServices() {
     logger.info('Supabase client initialized');
 
     // Initialize storage
-    storage = new UnifiedStorage(supabase);
+    storage = new UnifiedStorage(supabase, 'vezlo');
 
     // Initialize knowledge base
     knowledgeBase = new KnowledgeBaseService({
       supabase,
-      tableName: 'knowledge_items'
+      tableName: 'vezlo_knowledge_items'
     });
 
     // Initialize AI service
