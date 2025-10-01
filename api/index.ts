@@ -182,7 +182,7 @@ app.get('/health', async (req, res) => {
     if (isEnvironmentConfigured()) {
       try {
         const supabase = getSupabaseClient();
-        const { error } = await supabase.from('conversations').select('count').limit(1);
+        const { error } = await supabase.from('vezlo_conversations').select('count').limit(1);
         healthChecks.supabase = error ? 'error' : 'connected';
       } catch (error) {
         healthChecks.supabase = 'disconnected';

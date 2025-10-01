@@ -60,6 +60,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       });
     }
 
+    // Extract database host from project reference
+    const dbHost = `db.${projectRef}.supabase.co`;
+
     // Use Supabase Management API to execute SQL
     console.log('Executing SQL via Management API...');
     const managementApiUrl = `https://api.supabase.com/v1/projects/${projectRef}/database/query`;
