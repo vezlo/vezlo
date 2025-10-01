@@ -17,21 +17,21 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 
 // Import configurations from compiled dist
-import logger from '../dist/config/logger';
-import { initializeSupabase, getSupabaseClient } from '../dist/config/database';
-import { specs, swaggerUi, swaggerUiOptions } from '../dist/config/swagger';
-import { config as globalConfig } from '../dist/config/global';
-import { errorHandler, notFoundHandler } from '../dist/middleware/errorHandler';
+import logger from '../dist/src/config/logger';
+import { initializeSupabase, getSupabaseClient } from '../dist/src/config/database';
+import { specs, swaggerUi, swaggerUiOptions } from '../dist/src/config/swagger';
+import { config as globalConfig } from '../dist/src/config/global';
+import { errorHandler, notFoundHandler } from '../dist/src/middleware/errorHandler';
 
 // Import services from compiled dist
-import { AIService } from '../dist/services/AIService';
-import { ChatManager } from '../dist/services/ChatManager';
-import { KnowledgeBaseService } from '../dist/services/KnowledgeBaseService';
-import { UnifiedStorage } from '../dist/storage/UnifiedStorage';
+import { AIService } from '../dist/src/services/AIService';
+import { ChatManager } from '../dist/src/services/ChatManager';
+import { KnowledgeBaseService } from '../dist/src/services/KnowledgeBaseService';
+import { UnifiedStorage } from '../dist/src/storage/UnifiedStorage';
 
 // Import controllers from compiled dist
-import { ChatController } from '../dist/controllers/ChatController';
-import { KnowledgeController } from '../dist/controllers/KnowledgeController';
+import { ChatController } from '../dist/src/controllers/ChatController';
+import { KnowledgeController } from '../dist/src/controllers/KnowledgeController';
 
 // Load environment variables
 config();
