@@ -47,14 +47,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     console.log('Creating Supabase client...');
     const supabase = createClient(config.supabase_url, config.supabase_service_key);
 
-    // Test Supabase connection
+    // Test Supabase connection with a simple query that should work
     console.log('Testing Supabase connection...');
     const { data: testData, error: testError } = await supabase
-      .from('_test')
-      .select('*')
+      .from('pg_tables')
+      .select('tablename')
       .limit(1);
 
-    if (testError && testError.code !== 'PGRST116') {
+    if (testError) {
       console.error('Supabase connection test failed:', testError);
       return res.status(400).json({
         success: false,
