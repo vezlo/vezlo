@@ -254,6 +254,12 @@ dist/
 build/
 out/
 
+# Knex compiled files
+knexfile.js
+knexfile.js.map
+knexfile.d.ts
+knexfile.d.ts.map
+
 # Temporary files
 tmp/
 temp/
