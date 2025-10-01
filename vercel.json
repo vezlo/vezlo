@@ -11,6 +11,11 @@
       "maxDuration": 60
     }
   },
+  "build": {
+    "env": {
+      "ENABLE_TYPESCRIPT_PLUGIN": "false"
+    }
+  },
   "env": {
     "NODE_ENV": "production"
   }
