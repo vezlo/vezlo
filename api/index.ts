@@ -14,7 +14,6 @@ import rateLimit from 'express-rate-limit';
 import { Server } from 'socket.io';
 import { config } from 'dotenv';
 import path from 'path';
-import { fileURLToPath } from 'url';
 
 // Import configurations from compiled dist
 import logger from '../dist/src/config/logger';
@@ -36,9 +35,8 @@ import { KnowledgeController } from '../dist/src/controllers/KnowledgeController
 // Load environment variables
 config();
 
-// Get the directory path in a way that works with both CommonJS and ES modules
-const __dirname = path.resolve();
-const publicPath = path.join(__dirname, 'public');
+// Get the directory path (in Node.js CommonJS, __dirname is already available)
+const publicPath = path.join(process.cwd(), 'public');
 
 // Initialize Express app (shared across invocations)
 const app = express();
