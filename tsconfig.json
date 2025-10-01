@@ -4,7 +4,7 @@
     "module": "commonjs",
     "lib": ["ES2020"],
     "outDir": "./dist",
-    "rootDir": "./src",
+    "rootDir": "./",
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
@@ -23,8 +23,9 @@
     "baseUrl": "./",
     "paths": {
       "@/*": ["src/*"]
-    }
+    },
+    "noEmit": false
   },
-  "include": ["src/**/*"],
+  "include": ["src/**/*", "knexfile.ts"],
   "exclude": ["node_modules", "dist", "**/*.test.ts", "api"]
 }
