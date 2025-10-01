@@ -43,11 +43,29 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       });
     }
 
-    // Step 1: Create Supabase client
+    // Step 1: Create Supabase client and test connection
     console.log('Creating Supabase client...');
     const supabase = createClient(config.supabase_url, config.supabase_service_key);
 
-    // Step 2: Execute SQL using Supabase Management API
+    // Test Supabase connection
+    console.log('Testing Supabase connection...');
+    const { data: testData, error: testError } = await supabase
+      .from('_test')
+      .select('*')
+      .limit(1);
+
+    if (testError && testError.code !== 'PGRST116') {
+      console.error('Supabase connection test failed:', testError);
+      return res.status(400).json({
+        success: false,
+        error: 'Failed to connect to Supabase',
+        details: testError.message
+      });
+    }
+
+    console.log('Supabase connection successful');
+
+    // Step 2: Read database schema
     console.log('Reading database schema...');
     const schemaPath = join(process.cwd(), 'database-schema.sql');
     const schema = readFileSync(schemaPath, 'utf8');
@@ -64,31 +82,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     // Extract database host from project reference
     const dbHost = `db.${projectRef}.supabase.co`;
 
-    // Use Supabase Management API to execute SQL
-    console.log('Executing SQL via Management API...');
-    const managementApiUrl = `https://api.supabase.com/v1/projects/${projectRef}/database/query`;
+    console.log('Connection verified - showing SQL for manual execution');
 
-    const sqlResponse = await fetch(managementApiUrl, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${config.supabase_service_key}`,
-        'Content-Type': 'application/json',
-        'apikey': config.supabase_service_key
-      },
-      body: JSON.stringify({
-        query: schema
-      })
-    });
-
-    if (!sqlResponse.ok) {
-      const error = await sqlResponse.text();
-      console.error('SQL execution failed:', error);
-      throw new Error(`Failed to execute SQL: ${error}`);
-    }
-
-    console.log('Tables created successfully');
-
-    // Step 3: Verify tables were created using Supabase client
+    // Step 3: Check if tables already exist (optional verification)
     const { data: tables, error: verifyError } = await supabase
       .from('vezlo_conversations')
       .select('count')
