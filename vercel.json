@@ -1,12 +1,8 @@
 {
   "rewrites": [
     {
-      "source": "/",
-      "destination": "/api/setup-page"
-    },
-    {
-      "source": "/setup",
-      "destination": "/api/setup-page"
+      "source": "/(.*)",
+      "destination": "/api/index"
     }
   ],
   "functions": {
