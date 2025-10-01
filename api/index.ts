@@ -172,7 +172,8 @@ app.get('/', (req, res) => {
   }
 });
 
-// API Documentation
+// API Documentation - serve Swagger UI assets and setup
+app.use('/docs', swaggerUi.serve);
 app.get('/docs', swaggerUi.setup(specs, swaggerUiOptions));
 
 // Health check
