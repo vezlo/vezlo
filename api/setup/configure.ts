@@ -47,12 +47,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     console.log('Creating Supabase client...');
     const supabase = createClient(config.supabase_url, config.supabase_service_key);
 
-    // Test Supabase connection with a simple query that should work
+    // Test Supabase connection using admin API (requires service role key)
     console.log('Testing Supabase connection...');
-    const { data: testData, error: testError } = await supabase
-      .from('pg_tables')
-      .select('tablename')
-      .limit(1);
+    const { data: testData, error: testError } = await supabase.auth.admin.listUsers({
+      page: 1,
+      perPage: 1
+    });
 
     if (testError) {
       console.error('Supabase connection test failed:', testError);
