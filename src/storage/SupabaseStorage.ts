@@ -169,7 +169,7 @@ export class SupabaseStorage implements ChatStorage {
     } else {
       // Get conversation internal ID from UUID
       const conversationQuery = await this.supabase
-        .from('conversations')
+        .from(this.getTableName('conversations'))
         .select('id')
         .eq('uuid', message.conversationId)
         .single();
@@ -180,7 +180,7 @@ export class SupabaseStorage implements ChatStorage {
       let parentMessageInternalId = null;
       if (message.parentMessageId) {
         const parentMessageQuery = await this.supabase
-          .from('messages')
+          .from(this.getTableName('messages'))
           .select('id')
           .eq('uuid', message.parentMessageId)
           .single();
@@ -223,7 +223,7 @@ export class SupabaseStorage implements ChatStorage {
   async getMessages(conversationId: string, limit = 50, offset = 0): Promise<StoredChatMessage[]> {
     // Join messages with conversations to get conversation UUID
     const { data, error } = await this.supabase
-      .from('messages')
+      .from(this.getTableName('messages'))
       .select(`
         uuid,
         type,
@@ -233,9 +233,9 @@ export class SupabaseStorage implements ChatStorage {
         parent_message_id,
         created_at,
         updated_at,
-        conversations!inner(uuid)
+        ` + this.getTableName('conversations') + `!inner(uuid)
       `)
-      .eq('conversations.uuid', conversationId)
+      .eq(`${this.getTableName('conversations')}.uuid`, conversationId)
       .order('created_at', { ascending: true })
       .range(offset, offset + limit - 1);
 
@@ -298,7 +298,7 @@ export class SupabaseStorage implements ChatStorage {
     } else {
       // Get message internal ID from UUID
       const messageQuery = await this.supabase
-        .from('messages')
+        .from(this.getTableName('messages'))
         .select('id')
         .eq('uuid', feedback.messageId)
         .single();
@@ -340,7 +340,7 @@ export class SupabaseStorage implements ChatStorage {
   async getFeedback(messageId: string): Promise<Feedback[]> {
     // Join feedback with messages to get message UUID
     const { data, error } = await this.supabase
-      .from('message_feedback')
+      .from(this.getTableName('message_feedback'))
       .select(`
         uuid,
         user_id,
@@ -349,9 +349,9 @@ export class SupabaseStorage implements ChatStorage {
         comment,
         suggested_improvement,
         created_at,
-        messages!inner(uuid)
+        ` + this.getTableName('messages') + `!inner(uuid)
       `)
-      .eq('messages.uuid', messageId)
+      .eq(`${this.getTableName('messages')}.uuid`, messageId)
       .order('created_at', { ascending: false });
 
     if (error) throw new Error(`Failed to get feedback: ${error.message}`);

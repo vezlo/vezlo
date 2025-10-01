@@ -47,7 +47,7 @@ export class MessageRepository {
     } else {
       // Get conversation internal ID from UUID
       const conversationQuery = await this.supabase
-        .from('conversations')
+        .from(this.getTableName('conversations'))
         .select('id')
         .eq('uuid', message.conversationId)
         .single();
@@ -58,7 +58,7 @@ export class MessageRepository {
       let parentMessageInternalId = null;
       if (message.parentMessageId) {
         const parentMessageQuery = await this.supabase
-          .from('messages')
+          .from(this.getTableName('messages'))
           .select('id')
           .eq('uuid', message.parentMessageId)
           .single();
@@ -103,7 +103,7 @@ export class MessageRepository {
     
     // First get the conversation internal ID
     const conversationQuery = await this.supabase
-      .from('conversations')
+      .from(this.getTableName('conversations'))
       .select('id')
       .eq('uuid', conversationId)
       .single();
@@ -155,7 +155,7 @@ export class MessageRepository {
     
     const { data, error } = await this.supabase
       .from(tableName)
-      .select('*, conversations!inner(uuid)')
+      .select('*, ' + this.getTableName('conversations') + '!inner(uuid)')
       .eq('uuid', messageId)
       .single();
 
@@ -164,18 +164,18 @@ export class MessageRepository {
       throw new Error(`Failed to get message: ${error.message}`);
     }
 
-    const metadata = data.metadata || {};
+    const metadata = (data as any).metadata || {};
     return {
-      id: data.uuid,
-      conversationId: data.conversations.uuid,
-      threadId: data.conversations.uuid,
-      role: data.type,
-      content: data.content,
+      id: (data as any).uuid,
+      conversationId: ((data as any).conversations as any).uuid,
+      threadId: ((data as any).conversations as any).uuid,
+      role: (data as any).type,
+      content: (data as any).content,
       toolCalls: metadata.tool_calls,
       toolResults: metadata.tool_results,
-      parentMessageId: data.parent_message_id,
-      createdAt: new Date(data.created_at),
-      updatedAt: data.updated_at ? new Date(data.updated_at) : undefined
+      parentMessageId: (data as any).parent_message_id,
+      createdAt: new Date((data as any).created_at),
+      updatedAt: (data as any).updated_at ? new Date((data as any).updated_at) : undefined
     };
   }
 }

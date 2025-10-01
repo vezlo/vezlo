@@ -136,7 +136,7 @@ export class KnowledgeBaseService {
           created_by,
           created_at,
           updated_at,
-          parent:knowledge_items!parent_id(uuid)
+          parent:` + this.tableName + `!parent_id(uuid)
         `)
         .eq('uuid', itemId)
         .single();
@@ -147,18 +147,18 @@ export class KnowledgeBaseService {
       }
 
       return {
-        id: data.uuid,
-        parent_id: data.parent ? (data.parent as any).uuid : undefined,
-        company_id: data.company_id,
-        title: data.title,
-        description: data.description,
-        type: data.type,
-        content: data.content,
-        file_url: data.file_url,
-        file_size: data.file_size,
-        file_type: data.file_type,
-        metadata: data.metadata,
-        created_by: data.created_by
+        id: (data as any).uuid,
+        parent_id: (data as any).parent ? ((data as any).parent as any).uuid : undefined,
+        company_id: (data as any).company_id,
+        title: (data as any).title,
+        description: (data as any).description,
+        type: (data as any).type,
+        content: (data as any).content,
+        file_url: (data as any).file_url,
+        file_size: (data as any).file_size,
+        file_type: (data as any).file_type,
+        metadata: (data as any).metadata,
+        created_by: (data as any).created_by
       };
 
     } catch (error) {
@@ -190,7 +190,7 @@ export class KnowledgeBaseService {
           created_by,
           created_at,
           updated_at,
-          parent:knowledge_items!parent_id(uuid)
+          parent:` + this.tableName + `!parent_id(uuid)
         `, { count: 'exact' });
 
       // Filter by parent

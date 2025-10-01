@@ -37,7 +37,7 @@ export class FeedbackRepository {
     } else {
       // Get message internal ID from UUID
       const messageQuery = await this.supabase
-        .from('messages')
+        .from(this.getTableName('messages'))
         .select('id')
         .eq('uuid', feedback.messageId)
         .single();
@@ -80,7 +80,7 @@ export class FeedbackRepository {
     
     // Get message internal ID from UUID
     const messageQuery = await this.supabase
-      .from('messages')
+      .from(this.getTableName('messages'))
       .select('id')
       .eq('uuid', messageId)
       .single();
@@ -105,7 +105,7 @@ export class FeedbackRepository {
     
     const { data, error } = await this.supabase
       .from(tableName)
-      .select('*, messages!inner(uuid)')
+      .select('*, ' + this.getTableName('messages') + '!inner(uuid)')
       .eq('uuid', feedbackId)
       .single();
 
@@ -122,7 +122,7 @@ export class FeedbackRepository {
     
     const { data, error } = await this.supabase
       .from(tableName)
-      .select('*, messages!inner(uuid)')
+      .select('*, ' + this.getTableName('messages') + '!inner(uuid)')
       .eq('user_id', parseInt(userId) || 1)
       .order('created_at', { ascending: false })
       .range(offset, offset + limit - 1);

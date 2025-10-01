@@ -58,7 +58,7 @@ async function validateDatabase() {
     );
 
     // Try to query a table
-    const { error } = await supabase.from('conversations').select('count').limit(0);
+    const { error } = await supabase.from('vezlo_conversations').select('count').limit(0);
 
     if (error && error.code !== 'PGRST116') {
       throw error;
