@@ -147,7 +147,7 @@ app.get('/setup', (req, res) => {
 // Setup API endpoint
 app.post('/api/setup/configure', async (req, res) => {
   // Import setup handler dynamically
-  const setupHandler = await import('./setup');
+  const setupHandler = await import('./setup/configure');
   return setupHandler.default(req as any, res as any);
 });
 
@@ -254,7 +254,7 @@ app.delete('/api/conversations/:uuid', requireServices, (req, res) => chatContro
 app.get('/api/users/:uuid/conversations', requireServices, (req, res) => chatController.getUserConversations(req, res));
 
 // Message APIs
-app.post('/api/conversations/:uuid/messages', requireServices, (req, res) => chatController.createMessage(req, res));
+app.post('/api/conversations/:uuid/messages', requireServices, (req, res) => chatController.createUserMessage(req, res));
 app.post('/api/messages/:uuid/generate', requireServices, (req, res) => chatController.generateResponse(req, res));
 
 // Knowledge Base APIs
@@ -263,7 +263,7 @@ app.get('/api/knowledge/items', requireServices, (req, res) => knowledgeControll
 app.get('/api/knowledge/items/:uuid', requireServices, (req, res) => knowledgeController.getItem(req, res));
 app.put('/api/knowledge/items/:uuid', requireServices, (req, res) => knowledgeController.updateItem(req, res));
 app.delete('/api/knowledge/items/:uuid', requireServices, (req, res) => knowledgeController.deleteItem(req, res));
-app.post('/api/knowledge/search', requireServices, (req, res) => knowledgeController.searchKnowledge(req, res));
+app.post('/api/knowledge/search', requireServices, (req, res) => knowledgeController.search(req, res));
 
 // Feedback API
 app.post('/api/feedback', requireServices, (req, res) => chatController.submitFeedback(req, res));
