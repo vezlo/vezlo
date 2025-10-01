@@ -1,12 +1,15 @@
 import { Request, Response } from 'express';
 import { KnowledgeBaseService } from '../services/KnowledgeBaseService';
+import { AIService } from '../services/AIService';
 import logger from '../config/logger';
 
 export class KnowledgeController {
   private knowledgeBase: KnowledgeBaseService;
+  private aiService?: AIService;
 
-  constructor(knowledgeBase: KnowledgeBaseService) {
+  constructor(knowledgeBase: KnowledgeBaseService, aiService?: AIService) {
     this.knowledgeBase = knowledgeBase;
+    this.aiService = aiService;
   }
 
   async createItem(req: Request, res: Response): Promise<void> {
@@ -251,6 +254,44 @@ export class KnowledgeController {
       logger.error('Search knowledge items error:', error);
       res.status(500).json({
         error: 'Failed to search knowledge items',
+        message: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  }
+
+  async ragSearch(req: Request, res: Response): Promise<void> {
+    try {
+      const { query, company_uuid } = req.body;
+
+      if (!query) {
+        res.status(400).json({ error: 'query is required' });
+        return;
+      }
+
+      if (!this.aiService) {
+        res.status(500).json({ error: 'AI service not available' });
+        return;
+      }
+
+      // Perform knowledge base search
+      const searchResults = await this.knowledgeBase.search(query, {
+        limit: 3,
+        threshold: 0.7,
+        type: 'hybrid',
+        company_id: company_uuid ? parseInt(company_uuid) : undefined
+      });
+
+      // Generate AI response using the search results
+      const aiResponse = await this.aiService.generateResponse(query);
+
+      res.json({
+        response: aiResponse.content
+      });
+
+    } catch (error) {
+      logger.error('RAG search error:', error);
+      res.status(500).json({
+        error: 'Failed to perform RAG search',
         message: error instanceof Error ? error.message : 'Unknown error'
       });
     }
