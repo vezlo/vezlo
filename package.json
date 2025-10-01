@@ -23,6 +23,7 @@
   ],
   "scripts": {
     "build": "tsc",
+    "vercel-build": "tsc",
     "start": "node dist/src/server.js",
     "prepublishOnly": "npm run build",
     "setup": "node scripts/setup.js",
