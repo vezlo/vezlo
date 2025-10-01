@@ -332,7 +332,7 @@
                         
                         <div style="position: relative;">
                             <pre id="sql-schema" style="background: #1e293b; color: #e2e8f0; padding: 20px; border-radius: 8px; overflow-x: auto; max-height: 400px; font-size: 13px; line-height: 1.5;"></pre>
-                            <button onclick="copySQLToClipboard()" style="position: absolute; top: 10px; right: 10px; background: #3b82f6; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 13px;">
+                            <button onclick="copySQLToClipboard(event)" style="position: absolute; top: 10px; right: 10px; background: #3b82f6; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 13px;">
                                 📋 Copy SQL
                             </button>
                         </div>
@@ -359,7 +359,7 @@
                         <h3 style="margin-bottom: 15px;">Step 2: Add Environment Variables to Vercel</h3>
                         <p style="color: #6b7280; margin-bottom: 15px;">Add these environment variables to your Vercel project settings:</p>
                         
-                        <div id="env-vars" style="background: #f9fafb; border: 1px solid #e5e7eb; padding: 15px; border-radius: 8px; font-family: monospace; font-size: 13px;">
+                        <div id="env-vars" style="background: #f9fafb; border: 1px solid #e5e7eb; padding: 15px; border-radius: 8px; font-family: monospace; font-size: 13px; word-wrap: break-word; overflow-wrap: break-word;">
                         </div>
 
                         <div style="background: #fffbeb; border-left: 4px solid #f59e0b; padding: 15px; margin: 20px 0; border-radius: 4px;">
@@ -510,7 +510,7 @@
                     const envVarsDiv = document.getElementById('env-vars');
                     let envVarsHTML = '';
                     for (const [key, value] of Object.entries(result.env_vars_needed)) {
-                        envVarsHTML += `<div style="margin-bottom: 10px;"><strong>${key}</strong> = ${value}</div>`;
+                        envVarsHTML += `<div style="margin-bottom: 10px; word-break: break-all;"><strong style="color: #1e40af;">${key}</strong> = <span style="color: #059669;">${value}</span></div>`;
                     }
                     envVarsDiv.innerHTML = envVarsHTML;
 
@@ -529,21 +529,56 @@
             }
         }
 
-        function copySQLToClipboard() {
+        function copySQLToClipboard(event) {
             const sqlText = document.getElementById('sql-schema').textContent;
-            navigator.clipboard.writeText(sqlText).then(() => {
-                // Change button text temporarily
-                const btn = event.target;
-                const originalText = btn.textContent;
-                btn.textContent = '✅ Copied!';
-                btn.style.background = '#22c55e';
-                setTimeout(() => {
-                    btn.textContent = originalText;
-                    btn.style.background = '#3b82f6';
-                }, 2000);
-            }).catch(err => {
-                alert('Failed to copy SQL. Please select and copy manually.');
-            });
+            const btn = event.target;
+            const originalText = btn.textContent;
+            
+            // Try modern clipboard API first
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(sqlText).then(() => {
+                    btn.textContent = '✅ Copied!';
+                    btn.style.background = '#22c55e';
+                    setTimeout(() => {
+                        btn.textContent = originalText;
+                        btn.style.background = '#3b82f6';
+                    }, 2000);
+                }).catch(err => {
+                    // Fallback to textarea method
+                    fallbackCopyTextToClipboard(sqlText, btn, originalText);
+                });
+            } else {
+                // Fallback for older browsers
+                fallbackCopyTextToClipboard(sqlText, btn, originalText);
+            }
+        }
+
+        function fallbackCopyTextToClipboard(text, btn, originalText) {
+            const textArea = document.createElement('textarea');
+            textArea.value = text;
+            textArea.style.position = 'fixed';
+            textArea.style.left = '-9999px';
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+            
+            try {
+                const successful = document.execCommand('copy');
+                if (successful) {
+                    btn.textContent = '✅ Copied!';
+                    btn.style.background = '#22c55e';
+                    setTimeout(() => {
+                        btn.textContent = originalText;
+                        btn.style.background = '#3b82f6';
+                    }, 2000);
+                } else {
+                    alert('Failed to copy. Please select the SQL text and copy manually (Ctrl+C or Cmd+C).');
+                }
+            } catch (err) {
+                alert('Failed to copy. Please select the SQL text and copy manually (Ctrl+C or Cmd+C).');
+            }
+            
+            document.body.removeChild(textArea);
         }
     </script>
 </body>
