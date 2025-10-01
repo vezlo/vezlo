@@ -452,15 +452,20 @@
 
         async function validateAndSetup() {
             const config = {
-                supabase_url: document.getElementById('supabase_url').value,
-                supabase_service_key: document.getElementById('supabase_service_key').value,
-                openai_api_key: document.getElementById('openai_api_key').value,
+                supabase_url: document.getElementById('supabase_url').value.trim(),
+                supabase_service_key: document.getElementById('supabase_service_key').value.trim(),
+                openai_api_key: document.getElementById('openai_api_key').value.trim(),
                 ai_model: document.getElementById('ai_model').value
             };
 
             // Validate required fields
-            if (!config.supabase_url || !config.supabase_service_key || !config.openai_api_key) {
-                alert('Please fill in all required fields');
+            const missingFields = [];
+            if (!config.supabase_url) missingFields.push('Supabase URL (Step 2)');
+            if (!config.supabase_service_key) missingFields.push('Supabase Service Key (Step 2)');
+            if (!config.openai_api_key) missingFields.push('OpenAI API Key (Step 3)');
+
+            if (missingFields.length > 0) {
+                alert('Please fill in all required fields:\n\n' + missingFields.join('\n'));
                 return;
             }
 
