@@ -172,16 +172,50 @@ app.get('/', (req, res) => {
   }
 });
 
-// API Documentation - use CDN assets for Swagger UI (serverless compatible)
-const swaggerOptions = {
-  ...swaggerUiOptions,
-  customCssUrl: 'https://cdn.jsdelivr.net/npm/swagger-ui-dist@5/swagger-ui.css',
-  customJs: [
-    'https://cdn.jsdelivr.net/npm/swagger-ui-dist@5/swagger-ui-bundle.js',
-    'https://cdn.jsdelivr.net/npm/swagger-ui-dist@5/swagger-ui-standalone-preset.js'
-  ]
-};
-app.get('/docs', swaggerUi.setup(specs, swaggerOptions));
+// API Documentation - custom HTML with CDN assets for serverless
+app.get('/docs', (req, res) => {
+  const html = `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Assistant API Docs</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swagger-ui-dist@5/swagger-ui.css" />
+  <style>
+    .swagger-ui .topbar { display: none !important; }
+    .swagger-ui .topbar-wrapper { display: none !important; }
+  </style>
+</head>
+<body>
+  <div id="swagger-ui"></div>
+  <script src="https://cdn.jsdelivr.net/npm/swagger-ui-dist@5/swagger-ui-bundle.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/swagger-ui-dist@5/swagger-ui-standalone-preset.js"></script>
+  <script>
+    window.onload = function() {
+      const ui = SwaggerUIBundle({
+        spec: ${JSON.stringify(specs)},
+        dom_id: '#swagger-ui',
+        presets: [
+          SwaggerUIBundle.presets.apis,
+          SwaggerUIStandalonePreset
+        ],
+        layout: "StandaloneLayout",
+        deepLinking: true,
+        docExpansion: 'list',
+        filter: false,
+        showRequestDuration: true,
+        defaultModelsExpandDepth: 2,
+        defaultModelExpandDepth: 2,
+        displayOperationId: false,
+        displayRequestDuration: true
+      });
+    }
+  </script>
+</body>
+</html>`;
+  res.send(html);
+});
 
 // Health check
 app.get('/health', async (req, res) => {
