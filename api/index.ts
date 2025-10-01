@@ -173,7 +173,7 @@ app.get('/', (req, res) => {
 });
 
 // API Documentation
-app.use('/docs', swaggerUi.serve, swaggerUi.setup(specs, swaggerUiOptions));
+app.get('/docs', swaggerUi.setup(specs, swaggerUiOptions));
 
 // Health check
 app.get('/health', async (req, res) => {
