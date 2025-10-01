@@ -172,9 +172,16 @@ app.get('/', (req, res) => {
   }
 });
 
-// API Documentation - serve Swagger UI assets and setup
-app.use('/docs', swaggerUi.serve);
-app.get('/docs', swaggerUi.setup(specs, swaggerUiOptions));
+// API Documentation - use CDN assets for Swagger UI (serverless compatible)
+const swaggerOptions = {
+  ...swaggerUiOptions,
+  customCssUrl: 'https://cdn.jsdelivr.net/npm/swagger-ui-dist@5/swagger-ui.css',
+  customJs: [
+    'https://cdn.jsdelivr.net/npm/swagger-ui-dist@5/swagger-ui-bundle.js',
+    'https://cdn.jsdelivr.net/npm/swagger-ui-dist@5/swagger-ui-standalone-preset.js'
+  ]
+};
+app.get('/docs', swaggerUi.setup(specs, swaggerOptions));
 
 // Health check
 app.get('/health', async (req, res) => {
