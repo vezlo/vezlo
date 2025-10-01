@@ -320,21 +320,78 @@
 
                 <div id="setup-success" style="display: none;">
                     <div class="success-icon">✅</div>
-                    <h2 style="text-align: center; margin-bottom: 20px;">Setup Complete!</h2>
+                    <h2 style="text-align: center; margin-bottom: 20px;">Connection Verified!</h2>
                     <div class="alert alert-success">
-                        Your Vezlo Assistant Server is now configured and ready to use.
+                        Your Supabase connection is working correctly.
                     </div>
 
-                    <h3 style="margin: 30px 0 15px;">Next Steps:</h3>
-                    <ol style="margin-left: 20px; line-height: 1.8;">
-                        <li>Your environment variables have been saved to Vercel</li>
-                        <li>Database tables have been created successfully</li>
-                        <li>Test your API: <code style="background: #f3f4f6; padding: 2px 6px; border-radius: 4px;">/health</code></li>
-                        <li>View documentation: <code style="background: #f3f4f6; padding: 2px 6px; border-radius: 4px;">/docs</code></li>
-                    </ol>
+                    <!-- SQL Schema Section -->
+                    <div id="sql-section" style="display: none; margin-top: 30px;">
+                        <h3 style="margin-bottom: 15px;">Step 1: Create Database Tables</h3>
+                        <p style="color: #6b7280; margin-bottom: 15px;">Copy the SQL below and paste it into your <strong>Supabase SQL Editor</strong> to create the required tables.</p>
+                        
+                        <div style="position: relative;">
+                            <pre id="sql-schema" style="background: #1e293b; color: #e2e8f0; padding: 20px; border-radius: 8px; overflow-x: auto; max-height: 400px; font-size: 13px; line-height: 1.5;"></pre>
+                            <button onclick="copySQLToClipboard()" style="position: absolute; top: 10px; right: 10px; background: #3b82f6; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 13px;">
+                                📋 Copy SQL
+                            </button>
+                        </div>
 
-                    <div class="button-group">
-                        <button class="btn-primary" onclick="window.location.href='/docs'">View API Docs →</button>
+                        <div style="background: #eff6ff; border-left: 4px solid #3b82f6; padding: 15px; margin: 20px 0; border-radius: 4px;">
+                            <strong>📍 Where to run this:</strong>
+                            <ol style="margin: 10px 0 0 20px; line-height: 1.8;">
+                                <li>Go to your <a id="supabase-link" href="#" target="_blank" style="color: #3b82f6; text-decoration: none;">Supabase Dashboard</a></li>
+                                <li>Click <strong>SQL Editor</strong> in the left sidebar</li>
+                                <li>Paste the SQL above and click <strong>Run</strong></li>
+                            </ol>
+                        </div>
+                    </div>
+
+                    <!-- Already Exists Section -->
+                    <div id="tables-exist-section" style="display: none; margin-top: 30px;">
+                        <div class="alert alert-success">
+                            ✅ Database tables already exist. You can skip to Step 2.
+                        </div>
+                    </div>
+
+                    <!-- Environment Variables Section -->
+                    <div style="margin-top: 30px;">
+                        <h3 style="margin-bottom: 15px;">Step 2: Add Environment Variables to Vercel</h3>
+                        <p style="color: #6b7280; margin-bottom: 15px;">Add these environment variables to your Vercel project settings:</p>
+                        
+                        <div id="env-vars" style="background: #f9fafb; border: 1px solid #e5e7eb; padding: 15px; border-radius: 8px; font-family: monospace; font-size: 13px;">
+                        </div>
+
+                        <div style="background: #fffbeb; border-left: 4px solid #f59e0b; padding: 15px; margin: 20px 0; border-radius: 4px;">
+                            <strong>📍 How to add environment variables:</strong>
+                            <ol style="margin: 10px 0 0 20px; line-height: 1.8;">
+                                <li>Go to your <a href="https://vercel.com/dashboard" target="_blank" style="color: #f59e0b; text-decoration: none;">Vercel Dashboard</a></li>
+                                <li>Select your project → <strong>Settings</strong> → <strong>Environment Variables</strong></li>
+                                <li>Add each variable above (one by one)</li>
+                                <li>Click <strong>Save</strong></li>
+                            </ol>
+                        </div>
+                    </div>
+
+                    <!-- Final Step -->
+                    <div style="margin-top: 30px;">
+                        <h3 style="margin-bottom: 15px;">Step 3: Redeploy Your Application</h3>
+                        <p style="color: #6b7280; margin-bottom: 15px;">After adding environment variables, redeploy your Vercel project for changes to take effect.</p>
+                        
+                        <div style="background: #f0fdf4; border-left: 4px solid #22c55e; padding: 15px; border-radius: 4px;">
+                            <strong>📍 How to redeploy:</strong>
+                            <ol style="margin: 10px 0 0 20px; line-height: 1.8;">
+                                <li>Go to your Vercel project → <strong>Deployments</strong> tab</li>
+                                <li>Click the <strong>⋯</strong> menu on the latest deployment</li>
+                                <li>Select <strong>Redeploy</strong></li>
+                                <li>After deployment completes, visit your app URL</li>
+                            </ol>
+                        </div>
+                    </div>
+
+                    <div class="button-group" style="margin-top: 30px;">
+                        <button class="btn-secondary" onclick="restartSetup()">← Start Over</button>
+                        <button class="btn-primary" onclick="window.open('https://vercel.com/dashboard', '_blank')">Open Vercel Dashboard →</button>
                     </div>
                 </div>
 
@@ -428,12 +485,36 @@
                     // Show success
                     document.getElementById('setup-progress').style.display = 'none';
                     document.getElementById('setup-success').style.display = 'block';
+
+                    // Show SQL section if tables don't exist
+                    if (!result.tables_already_exist && result.sql_schema) {
+                        document.getElementById('sql-section').style.display = 'block';
+                        document.getElementById('sql-schema').textContent = result.sql_schema;
+                        
+                        // Set Supabase dashboard link
+                        const supabaseUrl = result.supabase_url.replace('https://', 'https://supabase.com/dashboard/project/');
+                        const projectRef = result.supabase_url.match(/https:\/\/(.+?)\.supabase\.co/)?.[1];
+                        if (projectRef) {
+                            document.getElementById('supabase-link').href = `https://supabase.com/dashboard/project/${projectRef}/editor`;
+                        }
+                    } else if (result.tables_already_exist) {
+                        document.getElementById('tables-exist-section').style.display = 'block';
+                    }
+
+                    // Show environment variables
+                    const envVarsDiv = document.getElementById('env-vars');
+                    let envVarsHTML = '';
+                    for (const [key, value] of Object.entries(result.env_vars_needed)) {
+                        envVarsHTML += `<div style="margin-bottom: 10px;"><strong>${key}</strong> = ${value}</div>`;
+                    }
+                    envVarsDiv.innerHTML = envVarsHTML;
+
                 } else {
                     // Show error
                     document.getElementById('setup-progress').style.display = 'none';
                     document.getElementById('setup-error').style.display = 'block';
                     const errorMsg = result.error || 'Unknown error occurred';
-                    const debugInfo = result.received ? '\n\nDebug: ' + JSON.stringify(result.received, null, 2) : '';
+                    const debugInfo = result.details ? '\n\nDetails: ' + result.details : '';
                     document.getElementById('error-message').textContent = errorMsg + debugInfo;
                 }
             } catch (error) {
@@ -441,6 +522,23 @@
                 document.getElementById('setup-error').style.display = 'block';
                 document.getElementById('error-message').textContent = error.message;
             }
+        }
+
+        function copySQLToClipboard() {
+            const sqlText = document.getElementById('sql-schema').textContent;
+            navigator.clipboard.writeText(sqlText).then(() => {
+                // Change button text temporarily
+                const btn = event.target;
+                const originalText = btn.textContent;
+                btn.textContent = '✅ Copied!';
+                btn.style.background = '#22c55e';
+                setTimeout(() => {
+                    btn.textContent = originalText;
+                    btn.style.background = '#3b82f6';
+                }, 2000);
+            }).catch(err => {
+                alert('Failed to copy SQL. Please select and copy manually.');
+            });
         }
     </script>
 </body>

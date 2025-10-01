@@ -95,30 +95,20 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     const createdTables = ['vezlo_conversations', 'vezlo_messages', 'vezlo_message_feedback', 'vezlo_knowledge_items'];
-    console.log('Setup completed for tables:', createdTables);
+    console.log('Setup wizard prepared for tables:', createdTables);
 
-    // Step 6: In a real Vercel deployment, you would update environment variables here
-    // Note: This requires Vercel API token and is done through their API
-    // For now, we'll return success and instructions to add env vars manually
-
+    // Return success with SQL schema for manual execution
     return res.status(200).json({
       success: true,
-      message: 'Database setup completed successfully',
-      tables_created: createdTables,
-      next_steps: [
-        'Add environment variables to Vercel project settings',
-        'Redeploy your application',
-        'Test the /health endpoint'
-      ],
+      message: 'Connection verified successfully',
+      tables_already_exist: !verifyError, // true if tables exist, false if they need to be created
+      sql_schema: schema, // The actual SQL to execute
+      tables_to_create: createdTables,
+      supabase_url: config.supabase_url,
       env_vars_needed: {
         SUPABASE_URL: config.supabase_url,
-        SUPABASE_SERVICE_KEY: '***hidden***',
-        SUPABASE_DB_HOST: dbHost,
-        SUPABASE_DB_PORT: '5432',
-        SUPABASE_DB_NAME: 'postgres',
-        SUPABASE_DB_USER: 'postgres',
-        SUPABASE_DB_PASSWORD: '***hidden***',
-        OPENAI_API_KEY: '***hidden***',
+        SUPABASE_SERVICE_KEY: config.supabase_service_key,
+        OPENAI_API_KEY: config.openai_api_key,
         AI_MODEL: config.ai_model || 'gpt-4o'
       }
     });
